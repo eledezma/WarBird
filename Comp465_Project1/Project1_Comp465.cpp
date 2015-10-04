@@ -2,27 +2,24 @@
 Project1_Comp465.cpp
 includes Shape3D.cpp
 
-Project Warbird: Phase 1
-Names: Ernie Ledezma, Stanley Kirdey
+Project Member Names: Ernie Ledezma, Stanislav Kirdey
 
-References: ManyModelsStatic (for using Shape3D.hpp)
-			ManyCubes (for loading multiple models and views)
+Instructions:  Open up the .sln project and execute the .cpp file!
 
-Summary:  Overall everything for Phase 1 was accomplished.  
-First and foremost we used layed out our code based on the ManyModelsStatic and ManyCubes projects. 
-We decide to used Shape3D.hpp class from ManyCubes static since we found that loading models though it was much more efficient.  
-It would also make our project more modular and therefore easier to edit for future phases.  
-Lastly we also saw there was some rotation logic in Shape3D that could help us with our orbital rotations.
-As our project Stands we have loaded 7 models, 5 of which are all spheres and the other is the custom model “Warbird”.  
-The moons and planets seem to be orbiting correctly and are at the right spot.  For our Missile model we used a the “battleship” model since it looked more like missile.
-Each View is controlled by pressing “v”.  
-At first the project is loaded in an initial view.  
-When the user hits v for the first time he enter the “toggle loop” which starts out with “Front View”.  
-So it might seem like hitting “v” did nothing the first time, but it did.  
-It simply switched from default view, to the first view on the toggle loop, which is “Front View”
-
+Summary:
+Overall everything for Phase 1 was accomplished.  
+We based our project on the ManyModelsStatic and ManyCubes examples. 
+We decided to use Shape3D.hpp class from the ManyCubes static since we found that loading models though it was much more efficient.
+Using classes and objects helps to make our project more modular and therefore easier to edit for future phases. 
+And there was rotation logic available in the Shape3D that helped us with our orbital rotations.
+As our project stands we have loaded 7 models, 5 of which are all spheres and the other is the custom models.
+The moons and planets seem to be orbiting correctly and are at the right spot.  
+For our missile model we used a ‘missile.tri” shape and for the warbird we have “battleship.tri”. Both were done in AC3D.
+Each View is controlled by pressing “v”.  At first the project is loaded in an initial view.  
+When the user hits v for the first time he enter the “toggle loop” which starts out with “Front View”. 
+So it might seem like hitting “v” did nothing the first time, but it did. 
+It simply switched from default view, to the first view on the toggle loop, which is “Front View”.
 */
-
 
 # define __Windows__ // define your target operating system
 # include "../includes465/include465.hpp"  
@@ -42,7 +39,7 @@ char * modelFile[nShapes] = {
 	"primus.tri",
 	"secundus.tri",
 	"battleship.tri",
-	"battleship.tri"
+	"missile.tri"
 };
 
 const int nVertices[nShapes] = {
@@ -52,7 +49,7 @@ const int nVertices[nShapes] = {
 	264 * 3,
 	264 * 3,
 	734 * 3,
-	734 * 3
+	112 * 3
 };
 
 float modelSize[nShapes] = {
@@ -63,7 +60,6 @@ float modelSize[nShapes] = {
 	150.0f,
 	100.0f,
 	25.0f };
-
 
 float modelBR[nShapes];  // modelFile's bounding radius
 
@@ -143,8 +139,6 @@ void init() {
 		shape[i]->setScaleMatrix(scale[i]);
 	}
 	printf("%d Shapes created \n", nShapes);
-
-	
 }
 
 void reshape(int width, int height) {
@@ -251,7 +245,6 @@ void intervalTimer(int i) {
 	if (!idleTimerFlag) update();
 }
 
-
 // Quit or set the view
 void keyboard(unsigned char key, int x, int y) {
 	
@@ -280,7 +273,6 @@ void keyboard(unsigned char key, int x, int y) {
 				up = glm::vec3(1.0f, 0.0f, 0.0f);
 				strcpy(viewStr, "Top");
 				printf("Cam Top\n");
-
 			}
 
 	}
