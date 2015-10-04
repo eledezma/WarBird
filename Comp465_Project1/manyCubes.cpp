@@ -58,8 +58,8 @@ char * modelFile[nShapes] = {
 	"duo.tri",
 	"primus.tri",
 	"secundus.tri",
-	"spaceShip-bs100.tri",
-	"spaceShip-bs100.tri"
+	"battleship.tri",
+	"battleship.tri"
 };
 
 const int nVertices[nShapes] = {
@@ -68,8 +68,8 @@ const int nVertices[nShapes] = {
 	264 * 3,
 	264 * 3,
 	264 * 3,
-	996 * 3,
-	996 * 3
+	734 * 3,
+	734 * 3
 };
 
 float modelSize[nShapes] = {
@@ -78,8 +78,8 @@ float modelSize[nShapes] = {
 	400.0f,
 	100.0f,
 	150.0f,
-	100.0f,
-	25.0f };
+	400.0f,
+	400.0f };
 
 
 float modelBR[nShapes];  // modelFile's bounding radius
@@ -224,29 +224,32 @@ void toggleCamera(){
 
 // Quit or set the view
 void keyboard(unsigned char key, int x, int y) {
+
+	int camera = 0;
 	
 	switch (key) {
 	
 	case 033: case 'q':  case 'Q': exit(EXIT_SUCCESS); break;
 	case 'v': case 'V':  
-		if (cameraSwitch == 4){
-			cameraSwitch = 0;
-		}
-	
-			if (cameraSwitch == 0){
-				eye = glm::vec3(0.0f, 10000.0f, 20000.0f);
-				at = glm::vec3(0.0f, 0.0f, 0.0f);
-				up = glm::vec3(0.0f, 1.0f, 0.0f);
-				strcpy(viewStr, "Front View |");
-				cameraSwitch++;
-				
+		
+		if (cameraSwitch == 0){
+			eye = glm::vec3(0.0f, 10000.0f, 20000.0f);
+			at = glm::vec3(0.0f, 0.0f, 0.0f);
+			up = glm::vec3(0.0f, 1.0f, 0.0f);
+			strcpy(viewStr, "Front View |");
+			cameraSwitch = 1;
+			printf("%d", cameraSwitch);
+			break;
+		
 			}
-			if (cameraSwitch == 1){
+		if (cameraSwitch == 1){
 				eye = glm::vec3(0.0f, 30000.0f, 0.0f);
 				at = glm::vec3(0.0f, 0.0f, 0.0f);
 				up = glm::vec3(1.0f, 0.0f, 0.0f);
 				strcpy(viewStr, "Top View |");
-				cameraSwitch++;
+				cameraSwitch = 0;
+				printf("%d", cameraSwitch);
+				break;
 			}
 
 	}
@@ -260,7 +263,7 @@ int main(int argc, char* argv[]) {
 	glutInitWindowSize(800, 600);
 	glutInitContextVersion(3, 3);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
-	glutCreateWindow("465 manyCubes Example {f, t, r} : Front View |");
+	glutCreateWindow("465 manyCubes Example {v to switch camera} : Front View |");
 	// initialize and verify glew
 	glewExperimental = GL_TRUE;  // needed my home system 
 	GLenum err = glewInit();
