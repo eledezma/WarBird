@@ -35,7 +35,6 @@ public:
 		switch (id) { 
 		case 0: //Ruber
 
-			
 			rotationMatrix = glm::mat4();
 			translationMatrix = glm::translate(glm::mat4(), glm::vec3(0, 0, 0));
 			rotationAxis = glm::vec3(0, 1, 0);
@@ -45,7 +44,6 @@ public:
 			break;
 
 		case 1: //Unum
-
 			
 			rotationMatrix = glm::mat4();
 			translationMatrix = glm::translate(glm::mat4(), glm::vec3(4000, 0, 0));
@@ -83,7 +81,7 @@ public:
 			rotationAxis = glm::vec3(0, 1, 0);
 			radians = glm::radians(0.2f);
 			orbital = true;
-			printf("Primus was Created\n");
+			printf("Secundus was Created\n");
 			break;
 
 		case 5: //Warbird
@@ -129,9 +127,8 @@ public:
 			return(translationMatrix * rotationMatrix * scaleMatrix);
 	}
 
-
-		void update() {
-			rotationMatrix = glm::rotate(rotationMatrix, radians, rotationAxis);
-			//translationMatrix = glm::translate(translationMatrix, translation);
-		}
+	void update() {
+		rotationMatrix = glm::rotate(rotationMatrix, radians, rotationAxis);
+		//translationMatrix = glm::translate(translationMatrix, translation);
+	}
 	};

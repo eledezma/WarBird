@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="manyCubes.cpp">
+    <ClCompile Include="Project1_Comp465.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
