@@ -1,9 +1,11 @@
 Comp465: Project 1 README
 
-Project Member Names: Ernie Ledezma, Stanley Kirdey
+Project Member Names: Ernie Ledezma, Stanislav Kirdey
 
 Instructions:  Open up the .sln project and execute the .cpp file!
 
-Summary:  Overall everything for Phase 1 was accomplished.  First and foremost we used layed out our code based on the ManyModelsStatic and ManyCubes projects.  We decide to used Shape3D.hpp class from ManyCubes static since we found that loading models though it was much more efficient.  It would also make our project more modular and therefore easier to edit for future phases.  Lastly we also saw there was some rotation logic in Shape3D that could help us with our orbital rotations.
-	As our project Stands we have loaded 7 models, 5 of which are all spheres and the other is the custom model ìWarbirdî.  The moons and planets seem to be orbiting correctly and are at the right spot.  For our Missile model we used a the ìbattleshipî model since it looked more like missile.
-	Each View is controlled by pressing ìvî.  At first the project is loaded in an initial view.  When the user hits v for the first time he enter the ìtoggle loopî which starts out with ìFront Viewî.  So it might seem like hitting ìvî did nothing the first time, but it did.  t simply switched from default view, to the first view on the toggle loop, which is ìFront Viewî
+Summary:  
+Overall everything for Phase 1 was accomplished.  We based our project on the ManyModelsStatic and ManyCubes examples.  We decided to use Shape3D.hpp class from the ManyCubes static since we found that loading models though it was much more efficient.  
+Using classes and objects helps to make our project more modular and therefore easier to edit for future phases. And there was rotation logic available in the Shape3D that helped us with our orbital rotations.
+	As our project stands we have loaded 7 models, 5 of which are all spheres and the other is the custom models for  ‚ÄúWarbird‚Äù and missile.  The moons and planets seem to be orbiting correctly and are at the right spot.  For our missile model we used a ‚Äòmissile.tri‚Äù shape and for the warbird we have ‚Äúbattleship.tri‚Äù. Both were done in AC3D.	
+Each View is controlled by pressing ‚Äúv‚Äù.  At first the project is loaded in an initial view.  When the user hits v for the first time he enter the ‚Äútoggle loop‚Äù which starts out with ‚ÄúFront View‚Äù.  So it might seem like hitting ‚Äúv‚Äù did nothing the first time, but it did. I t simply switched from default view, to the first view on the toggle loop, which is ‚ÄúFront View‚Äù.
