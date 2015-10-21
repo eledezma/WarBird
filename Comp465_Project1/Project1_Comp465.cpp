@@ -64,6 +64,19 @@ float modelSize[nShapes] = {
 float modelBR[nShapes];  // modelFile's bounding radius
 
 
+glm::vec3 translate[nShapes] = {
+	glm::vec3(0, 0, 0),
+	glm::vec3(4000, 0, 0),
+	glm::vec3(-9000, 0, 0),
+	glm::vec3(900, 0, 0),
+	glm::vec3(1750, 0, 0),
+	glm::vec3(5000, 1000, 5000),
+	glm::vec3(4900, 1000, 4850) };
+
+float radians[nShapes] = { 0.0f, 0.4f, 0.2f, 0.4f, 0.2f, 0.0f, 0.0f };
+bool orbital[nShapes] = { false, true, true, true, true, false, false };
+
+
 // display state and "state strings" for title display
 // window title strings
 char warbird[50] = "Warbird:        ";
@@ -135,7 +148,7 @@ void init() {
 	lastTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
 	// create shape
 	for (int i = 0; i < nShapes; i++){
-		shape[i] = new Shape3D(i);
+		shape[i] = new Shape3D(translate[i], radians[i], orbital[i]);
 		shape[i]->setScaleMatrix(scale[i]);
 	}
 	printf("%d Shapes created \n", nShapes);
