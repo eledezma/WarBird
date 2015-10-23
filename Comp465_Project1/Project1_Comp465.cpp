@@ -76,6 +76,10 @@ glm::vec3 translate[nShapes] = {
 float radians[nShapes] = { 0.0f, 0.4f, 0.2f, 0.4f, 0.2f, 0.0f, 0.0f };
 bool orbital[nShapes] = { false, true, true, true, true, false, false };
 
+static const GLfloat g_color_buffer_data[] = {
+	0.583f, 0.771f, 0.014f
+};
+
 
 // display state and "state strings" for title display
 // window title strings
@@ -96,6 +100,9 @@ char * vertexShaderFile = "simpleVertex.glsl";
 char * fragmentShaderFile = "simpleFragment.glsl";
 GLuint MVP;  // Model View Projection matrix's handle
 GLuint vPosition[nShapes], vColor[nShapes], vNormal[nShapes];
+
+
+
 
 glm::vec3 scale[nShapes];
 glm::mat4 projectionMatrix;     // set in reshape()
@@ -126,13 +133,27 @@ void init() {
 	// generate VAOs and VBOs
 	glGenVertexArrays(nShapes, VAO);
 	glGenBuffers(nShapes, buffer);
+	glGenBuffers(nShapes, vColor);
+
+
+	
 
 	// load the buffers from the model files
 	for (int i = 0; i < nShapes; i++) {
+		// set up vertex arrays (after shaders are loaded)
+		vPosition[i] = glGetAttribLocation(shaderProgram, "vPosition");
+		glEnableVertexAttribArray(vPosition[i]);
+		glVertexAttribPointer(vPosition[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+
+		vColor[i] = glGetAttribLocation(shaderProgram, "vColor");
+		glEnableVertexAttribArray(vColor[i]);
+		glVertexAttribPointer(vColor[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(VAO[i])));
+
 		modelBR[i] = loadModelBuffer(modelFile[i], nVertices[i], VAO[i], buffer[i], shaderProgram,
 			vPosition[i], vColor[i], vNormal[i], "vPosition", "vColor", "vNormal");
 		// set scale for models given bounding radius  
 		scale[i] = glm::vec3(modelSize[i] * 1.0f / modelBR[i]);
+		
 	}
 
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
@@ -193,6 +214,7 @@ void display() {
 		else{
 			modelMatrix = shape[m]->getModelMatrix();
 		}
+
 
 		ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
 		glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
