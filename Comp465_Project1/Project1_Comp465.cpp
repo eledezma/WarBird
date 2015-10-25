@@ -26,12 +26,11 @@ It simply switched from default view, to the first view on the toggle loop, whic
 
 # include "Shape3D.hpp"
 
-// Shapes
+// Amount of Shapes
 const int nShapes = 7;
 Shape3D * shape[nShapes];
+
 // Model for shapes
-
-
 char * modelFile[nShapes] = {
 	"ruber.tri",
 	"unum.tri",
@@ -63,7 +62,7 @@ float modelSize[nShapes] = {
 
 float modelBR[nShapes];  // modelFile's bounding radius
 
-
+// Position shapes in the world
 glm::vec3 translate[nShapes] = {
 	glm::vec3(0, 0, 0),
 	glm::vec3(4000, 0, 0),
@@ -73,13 +72,10 @@ glm::vec3 translate[nShapes] = {
 	glm::vec3(5000, 1000, 5000),
 	glm::vec3(4900, 1000, 4850) };
 
+// Rotation angels
 float radians[nShapes] = { 0.0f, 0.4f, 0.2f, 0.4f, 0.2f, 0.0f, 0.0f };
+
 bool orbital[nShapes] = { false, true, true, true, true, false, false };
-
-static const GLfloat g_color_buffer_data[] = {
-	0.583f, 0.771f, 0.014f
-};
-
 
 // display state and "state strings" for title display
 // window title strings
@@ -101,9 +97,6 @@ char * fragmentShaderFile = "simpleFragment.glsl";
 GLuint MVP;  // Model View Projection matrix's handle
 GLuint vPosition[nShapes], vColor[nShapes], vNormal[nShapes];
 
-
-
-
 glm::vec3 scale[nShapes];
 glm::mat4 projectionMatrix;     // set in reshape()
 glm::mat4 modelMatrix;          // set in shape[i]-->updateDraw()
@@ -114,6 +107,7 @@ glm::mat4 WarbirdMatrix;
 glm::mat4 ModelViewProjectionMatrix; // set in display();
 
 int cameraSwitch = -1;
+
 bool idleTimerFlag = false;
 // vectors and values for lookAt
 glm::vec3 eye, at, up;
@@ -133,22 +127,10 @@ void init() {
 	// generate VAOs and VBOs
 	glGenVertexArrays(nShapes, VAO);
 	glGenBuffers(nShapes, buffer);
-	glGenBuffers(nShapes, vColor);
-
-
-	
 
 	// load the buffers from the model files
 	for (int i = 0; i < nShapes; i++) {
-		// set up vertex arrays (after shaders are loaded)
-		vPosition[i] = glGetAttribLocation(shaderProgram, "vPosition");
-		glEnableVertexAttribArray(vPosition[i]);
-		glVertexAttribPointer(vPosition[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-
-		vColor[i] = glGetAttribLocation(shaderProgram, "vColor");
-		glEnableVertexAttribArray(vColor[i]);
-		glVertexAttribPointer(vColor[i], 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(VAO[i])));
-
+	
 		modelBR[i] = loadModelBuffer(modelFile[i], nVertices[i], VAO[i], buffer[i], shaderProgram,
 			vPosition[i], vColor[i], vNormal[i], "vPosition", "vColor", "vNormal");
 		// set scale for models given bounding radius  
@@ -219,8 +201,8 @@ void display() {
 		ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
 		glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
 		glBindVertexArray(VAO[m]);
-
 		glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
+	
 	}
 		DuoMatrix = shape[2]->getPositionMatrix();
 		UnumMatrix = shape[1]->getPositionMatrix();
@@ -255,7 +237,8 @@ void display() {
 			printf("Cam Duo\n");
 			viewMatrix = glm::lookAt(eye, at, up);
 		}
-
+	
+		
 	glutSwapBuffers();
 	frameCount++;
 

@@ -48,7 +48,7 @@ float loadTriModel(char * fileName, int nVertices, glm::vec4 vertex[], glm::vec4
   unsigned int red, green, blue;  // triangleColor's component colors
   int count = 0, vertexCount = 0, normalCount = 0, colorCount = 0;
 
-  // printf("loadTriModel sizes: nVertices %d, vertex %d, color %d, normal %d\n", nVertices, sizeof(vertex), sizeof(color), sizeof(normal));
+  printf("loadTriModel sizes: nVertices %d, vertex %d, color %d, normal %d\n", nVertices, sizeof(vertex), sizeof(color), sizeof(normal));
   fileIn = fopen(fileName, "r");
   if (fileIn != NULL) {
     while (!feof(fileIn)) {
