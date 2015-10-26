@@ -208,35 +208,8 @@ void display() {
 		UnumMatrix = shape[1]->getPositionMatrix();
 		WarbirdMatrix = shape[5]->getPositionMatrix();
 
-		if (cameraSwitch == 2){
-
-			eye = glm::vec3(WarbirdMatrix[3].x, WarbirdMatrix[3].y+300.0f, WarbirdMatrix[3].z + 1000.0f);
-			at = glm::vec3(WarbirdMatrix[3].x, WarbirdMatrix[3].y+300.0f, WarbirdMatrix[3].z);
-			up = glm::vec3(0.0f, 1.0f, 0.0f);
-			strcpy(viewStr, "Warbird");
-			printf("Cam Warbird\n");
-			viewMatrix = glm::lookAt(eye, at, up);
-		}
-
-		if (cameraSwitch == 3){
-
-			eye = glm::vec3(UnumMatrix[3].x, 4000.0f, UnumMatrix[3].z);
-			at = glm::vec3(UnumMatrix[3].x, UnumMatrix[3].y, UnumMatrix[3].z);
-			up = glm::vec3(1.0f, 0.0f, 0.0f);
-			strcpy(viewStr, "Unum");
-			printf("Cam Unum\n");
-			viewMatrix = glm::lookAt(eye, at, up);
-		}
-
-		if (cameraSwitch == 4){
-
-			eye = glm::vec3(DuoMatrix[3].x, 4000.0f, DuoMatrix[3].z);
-			at = glm::vec3(DuoMatrix[3].x, DuoMatrix[3].y, DuoMatrix[3].z);
-			up = glm::vec3(1.0f, 0.0f, 0.0f);
-			strcpy(viewStr, "Duo");
-			printf("Cam Duo\n");
-			viewMatrix = glm::lookAt(eye, at, up);
-		}
+		
+	
 	
 		
 	glutSwapBuffers();
@@ -291,6 +264,36 @@ void keyboard(unsigned char key, int x, int y) {
 				up = glm::vec3(1.0f, 0.0f, 0.0f);
 				strcpy(viewStr, "Top");
 				printf("Cam Top\n");
+			}
+
+			if (cameraSwitch == 2){
+
+				eye = glm::vec3(WarbirdMatrix[3].x, WarbirdMatrix[3].y + 300.0f, WarbirdMatrix[3].z + 1000.0f);
+				at = glm::vec3(WarbirdMatrix[3].x, WarbirdMatrix[3].y + 300.0f, WarbirdMatrix[3].z);
+				up = glm::vec3(0.0f, 1.0f, 0.0f);
+				strcpy(viewStr, "Warbird");
+				printf("Cam Warbird\n");
+				viewMatrix = glm::lookAt(eye, at, up);
+			}
+
+			if (cameraSwitch == 3){
+
+				eye = glm::vec3(UnumMatrix[3].x, 4000.0f, UnumMatrix[3].z);
+				at = glm::vec3(UnumMatrix[3].x, UnumMatrix[3].y, UnumMatrix[3].z);
+				up = glm::vec3(1.0f, 0.0f, 0.0f);
+				strcpy(viewStr, "Unum");
+				printf("Cam Unum\n");
+				viewMatrix = glm::lookAt(eye, at, up);
+			}
+
+			if (cameraSwitch == 4){
+
+				eye = glm::vec3(DuoMatrix[3].x, 4000.0f, DuoMatrix[3].z);
+				at = glm::vec3(DuoMatrix[3].x, DuoMatrix[3].y, DuoMatrix[3].z);
+				up = glm::vec3(1.0f, 0.0f, 0.0f);
+				strcpy(viewStr, "Duo");
+				printf("Cam Duo\n");
+				viewMatrix = glm::lookAt(eye, at, up);
 			}
 
 	}
