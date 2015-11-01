@@ -86,6 +86,7 @@ char us[50] = "U/S:";
 char fs[50] = "F/S:";
 char view[50] = "View: ";
 char fpsStr[15], viewStr[15] = "Front";
+char updStr[15];
 char titleStr[100];
 
 GLuint VAO[nShapes];      // Vertex Array Objects
@@ -117,7 +118,8 @@ glm::mat4 identity(1.0f);
 glm::mat4 rotation;
 int timerDelay = 40, frameCount = 0;  // A delay of 40 milliseconds is 25 updates / second
 double currentTime, lastTime, timeInterval;
-
+double currentTimeU, lastTimeU, timeIntervalU;
+int updateCount = 0;
 // load the shader programs, vertex data from model files, create the solids, set initial view
 void init() {
 	// load the shader programs
@@ -172,7 +174,7 @@ void updateTitle() {
 	strcat(titleStr, unum);
 	strcat(titleStr, secundus);
 	strcat(titleStr, us);
-	strcat(titleStr, fpsStr);
+	strcat(titleStr, updStr);
 	strcat(titleStr, fs);
 	strcat(titleStr, fpsStr);
 	strcat(titleStr, view);
@@ -214,20 +216,32 @@ void display() {
 		
 	glutSwapBuffers();
 	frameCount++;
-
 	// see if a second has passed to set estimated fps information
 	currentTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
 	timeInterval = currentTime - lastTime;
 	if (timeInterval >= 1000) {
-		sprintf(fpsStr,"%4d     ", (int)(frameCount / (timeInterval / 1000.0f)));
+		sprintf(fpsStr, "  %4d     ", (int)(frameCount / (timeInterval / 1000.0f)));
 		lastTime = currentTime;
 		frameCount = 0;
 		updateTitle();
 	}
+
 }
 
 void update(){
 	for (int i = 0; i < nShapes; i++) shape[i]->update();
+
+	updateCount++;
+	currentTimeU = glutGet(GLUT_ELAPSED_TIME); 
+	timeIntervalU = currentTimeU - lastTimeU;
+
+
+	if (timeIntervalU >= 1000) {
+		sprintf(updStr, "%4d     ", (int)(updateCount / (timeIntervalU / 1000.0f)));
+		lastTimeU = currentTimeU;
+		updateCount = 0;
+		updateTitle();
+	}
 	glutPostRedisplay();
 }
 
@@ -327,6 +341,7 @@ int main(int argc, char* argv[]) {
 	glutKeyboardFunc(keyboard);
 	glutIdleFunc(NULL);
 	glutTimerFunc(timerDelay, intervalTimer, 1);
+	glutIdleFunc(display);
 	glutMainLoop();
 	printf("done\n");
 	return 0;
