@@ -69,6 +69,7 @@
     <ClCompile Include="Project1_Comp465.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Missle3D.hpp" />
     <ClInclude Include="Shape3D.hpp" />
   </ItemGroup>
   <ItemGroup>

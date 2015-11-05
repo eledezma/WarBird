@@ -16,18 +16,22 @@ Mike Barnes
 
 class Shape3D {
 
-private:
+protected:
 
-	int id;
 	glm::mat4 rotationMatrix;
 	glm::mat4 DuoMatrix;
-	glm::mat4 scaleMatrix;
-	glm::mat4 translationMatrix;
 	glm::vec3 rotationAxis;
 	float radians;
 	bool orbital;
+	int id;
+	glm::vec3 position;
+	glm::mat4 translationMatrix;
+	glm::mat4 scaleMatrix;
+
 
 public:
+
+	Shape3D(){}
 
 	Shape3D(glm::vec3 translationParam, float radiansParam, bool orbitalParam ) {
 		rotationMatrix = glm::mat4();
@@ -55,7 +59,7 @@ public:
 			return(translationMatrix * rotationMatrix * scaleMatrix);
 	}
 
-	void update() {
+	virtual void update() {
 		rotationMatrix = glm::rotate(rotationMatrix, radians, rotationAxis);
 		//translationMatrix = glm::translate(translationMatrix, translation);
 	}

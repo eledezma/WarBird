@@ -25,6 +25,7 @@ It simply switched from default view, to the first view on the toggle loop, whic
 # include "../includes465/include465.hpp"  
 
 # include "Shape3D.hpp"
+# include "Missle3D.hpp"
 
 // Amount of Shapes
 const int nShapes = 7;
@@ -153,7 +154,15 @@ void init() {
 	lastTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
 	// create shape
 	for (int i = 0; i < nShapes; i++){
-		shape[i] = new Shape3D(translate[i], radians[i], orbital[i]);
+		if (i == 6){
+			// Create a missle shape and send it to the travel
+			shape[i] = new Missle3D(translate[i]);
+		}
+		else{
+			shape[i] = new Shape3D(translate[i], radians[i], orbital[i]);
+		}
+
+		
 		shape[i]->setScaleMatrix(scale[i]);
 	}
 	printf("%d Shapes created \n", nShapes);
