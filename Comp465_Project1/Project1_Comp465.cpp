@@ -121,6 +121,10 @@ int timerDelay = 40, frameCount = 0;  // A delay of 40 milliseconds is 25 update
 double currentTime, lastTime, timeInterval;
 double currentTimeU, lastTimeU, timeIntervalU;
 int updateCount = 0;
+
+int thruster = 10; //thrustuer speed initially at 0
+int warp = 1;  //1 = unum, 2 = duo
+
 // load the shader programs, vertex data from model files, create the solids, set initial view
 void init() {
 	// load the shader programs
@@ -221,11 +225,13 @@ void display() {
 
 		if (cameraSwitch == 2) {
 
-			eye = glm::vec3(WarbirdMatrix[3].x, WarbirdMatrix[3].y + 300.0f, WarbirdMatrix[3].z + 1000.0f);
-			at = glm::vec3(WarbirdMatrix[3].x, WarbirdMatrix[3].y + 300.0f, WarbirdMatrix[3].z);
-			up = glm::vec3(0.0f, 1.0f, 0.0f);
+			
+			glm::mat4 eyeWB = glm::translate(WarbirdMatrix, glm::vec3(0.0f, 300.0f, 1000.0f));
+			glm::mat4 atWB = glm::translate(WarbirdMatrix, glm::vec3(0.0f, 300.0f, 0.0f));
+			eye = glm::vec3(eyeWB[3].x, eyeWB[3].y, eyeWB[3].z);
+			at = glm::vec3(atWB[3].x, atWB[3].y, atWB[3].z);
+			up = glm::vec3(WarbirdMatrix[1].x, WarbirdMatrix[1].y, WarbirdMatrix[1].z);
 			strcpy(viewStr, "Warbird");
-			printf("Cam Warbird\n");
 			viewMatrix = glm::lookAt(eye, at, up);
 		}
 
@@ -235,7 +241,6 @@ void display() {
 			at = glm::vec3(UnumMatrix[3].x, UnumMatrix[3].y, UnumMatrix[3].z);
 			up = glm::vec3(1.0f, 0.0f, 0.0f);
 			strcpy(viewStr, "Unum");
-			printf("Cam Unum\n");
 			viewMatrix = glm::lookAt(eye, at, up);
 		}
 
@@ -245,7 +250,7 @@ void display() {
 			at = glm::vec3(DuoMatrix[3].x, DuoMatrix[3].y, DuoMatrix[3].z);
 			up = glm::vec3(1.0f, 0.0f, 0.0f);
 			strcpy(viewStr, "Duo");
-			printf("Cam Duo\n");
+			
 			viewMatrix = glm::lookAt(eye, at, up);
 		}
 	
@@ -293,6 +298,59 @@ void keyboard(unsigned char key, int x, int y) {
 	switch (key) {
 	
 	case 033: case 'q':  case 'Q': exit(EXIT_SUCCESS); break;
+
+	case 's': case'S':
+		if (thruster == 10) {
+
+			thruster = 50;
+		}
+		else if (thruster == 50) {
+
+			thruster = 200;
+		}
+		else if (thruster == 200) {
+
+			thruster = 10;
+		}
+
+		break;
+
+	case 't': case 'T': 
+		if (timerDelay == 40) {
+			timerDelay = 100;
+		}
+		else if (timerDelay == 100) {
+			timerDelay = 250;
+		}
+		else if (timerDelay == 250) {
+			timerDelay = 500;
+
+		}
+		else if (timerDelay == 500) {
+			timerDelay = 40;
+		}
+	
+		break;
+
+	case 'w': case 'W':
+		if (warp == 1) {
+			
+			glm::mat4 uPosition = shape[1]->getPositionMatrix();
+
+			shape[5]->warpShip(uPosition,1);
+			warp = 2;
+		}
+		else if (warp == 2) {
+			
+
+			glm::mat4 dPosition = shape[2]->getPositionMatrix();
+
+			shape[5]->warpShip(dPosition, 2);
+			warp = 1;
+		}
+
+		break;
+
 	case 'v': case 'V':  
 		cameraSwitch++;
 
@@ -306,7 +364,7 @@ void keyboard(unsigned char key, int x, int y) {
 				at = glm::vec3(0.0f, 0.0f, 0.0f);
 				up = glm::vec3(0.0f, 1.0f, 0.0f);
 				strcpy(viewStr, "Front");
-				printf("Cam Front\n");
+				
 				
 			}
 			if (cameraSwitch == 1){
@@ -314,13 +372,54 @@ void keyboard(unsigned char key, int x, int y) {
 				at = glm::vec3(0.0f, 0.0f, 0.0f);
 				up = glm::vec3(1.0f, 0.0f, 0.0f);
 				strcpy(viewStr, "Top");
-				printf("Cam Top\n");
+				
 			}
 
+			break;
 
 	}
 	viewMatrix = glm::lookAt(eye, at, up);
 	updateTitle();
+}
+
+void controls(int k, int x, int y) {
+
+	int specialKey = glutGetModifiers();
+		
+	if (k == GLUT_KEY_UP) {
+		if (specialKey == GLUT_ACTIVE_CTRL) {
+			shape[5]->pitchRightorLeft(0.02f);
+		}
+		else {
+			shape[5]->mForward(thruster);
+		}
+		
+	}
+	else if (k == GLUT_KEY_DOWN) {
+		if (specialKey == GLUT_ACTIVE_CTRL) {
+			shape[5]->pitchRightorLeft(-0.02f);
+		}
+		else {
+			shape[5]->mBack(thruster);
+		}
+	}
+	else if (k == GLUT_KEY_LEFT) {
+		if (specialKey == GLUT_ACTIVE_CTRL) {
+			shape[5]->rollRightorLeft(-0.02f);
+		}
+		else {
+			shape[5]->yawRightorLeft(0.02f);
+		}
+	}
+	else if (k == GLUT_KEY_RIGHT) {
+		if (specialKey == GLUT_ACTIVE_CTRL) {
+			shape[5]->rollRightorLeft(0.02f);
+		}
+		else {
+			shape[5]->yawRightorLeft(-0.02f);
+		}
+	}
+
 }
 
 int main(int argc, char* argv[]) {
@@ -349,6 +448,7 @@ int main(int argc, char* argv[]) {
 	glutKeyboardFunc(keyboard);
 	glutIdleFunc(NULL);
 	glutTimerFunc(timerDelay, intervalTimer, 1);
+	glutSpecialFunc(controls);
 	glutIdleFunc(display);
 	glutMainLoop();
 	printf("done\n");
