@@ -28,7 +28,7 @@ It simply switched from default view, to the first view on the toggle loop, whic
 # include "Missle3D.hpp"
 
 // Amount of Shapes
-const int nShapes = 7;
+const int nShapes = 9;
 Shape3D * shape[nShapes];
 
 // Model for shapes
@@ -39,7 +39,9 @@ char * modelFile[nShapes] = {
 	"primus.tri",
 	"secundus.tri",
 	"battleship.tri",
-	"missile.tri"
+	"missile.tri", 
+	"missileSite.tri",
+	"missileSite.tri"
 };
 
 const int nVertices[nShapes] = {
@@ -49,7 +51,9 @@ const int nVertices[nShapes] = {
 	264 * 3,
 	264 * 3,
 	734 * 3,
-	112 * 3
+	112 * 3, 
+	1696 * 3,
+	1696 * 3
 };
 
 float modelSize[nShapes] = {
@@ -59,7 +63,9 @@ float modelSize[nShapes] = {
 	100.0f,
 	150.0f,
 	100.0f,
-	25.0f };
+	25.0f, 
+    500.0f, 
+    500.0f};
 
 float modelBR[nShapes];  // modelFile's bounding radius
 
@@ -71,12 +77,14 @@ glm::vec3 translate[nShapes] = {
 	glm::vec3(900, 0, 0),
 	glm::vec3(1750, 0, 0),
 	glm::vec3(5000, 1000, 5000),
-	glm::vec3(4900, 1000, 4850) };
+	glm::vec3(4900, 1000, 4850),
+	glm::vec3(2000, 0, 2000), 
+	glm::vec3(-2000, 0, -2000) };
 
 // Rotation angels
-float radians[nShapes] = { 0.0f, 0.4f, 0.2f, 0.4f, 0.2f, 0.0f, 0.0f };
+float radians[nShapes] = { 0.0f, 0.4f, 0.2f, 0.4f, 0.2f, 0.0f, 0.0f, 0.0f, 0.0f };
 
-bool orbital[nShapes] = { false, true, true, true, true, false, false };
+bool orbital[nShapes] = { false, true, true, true, true, false, false, true, true };
 
 // display state and "state strings" for title display
 // window title strings
@@ -364,7 +372,6 @@ void keyboard(unsigned char key, int x, int y) {
 				at = glm::vec3(0.0f, 0.0f, 0.0f);
 				up = glm::vec3(0.0f, 1.0f, 0.0f);
 				strcpy(viewStr, "Front");
-				
 				
 			}
 			if (cameraSwitch == 1){
