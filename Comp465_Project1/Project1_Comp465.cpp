@@ -158,7 +158,9 @@ void init() {
 	glm::vec3 lightPos1 = glm::vec3(0.0f, 5000.0f, 0.0f);
 	glUniform3f(lightPosLoc, lightPos1.x, lightPos1.y, lightPos1.z);
 
-	modelLoc = glGetUniformLocation(shaderProgram, "model");
+	modelLoc = glGetUniformLocation(shaderProgram, "modelPos");
+	viewLoc = glGetUniformLocation(shaderProgram, "viewPos");
+
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
 	// initially use a front view
 	eye = glm::vec3(0.0f, 10000.0f, 20000.0f);
@@ -168,8 +170,9 @@ void init() {
 
 	// set render state values
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_POLYGON_SMOOTH);
+
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 	lastTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
 	// create shape
@@ -269,8 +272,10 @@ void display() {
 			strcpy(viewStr, "Duo");
 			
 			viewMatrix = glm::lookAt(eye, at, up);
+
 		}
-	
+
+		glUniform3f(viewLoc, viewMatrix[1].x, viewMatrix[2].y, viewMatrix[3].z);
 	
 	glutSwapBuffers();
 	frameCount++;
