@@ -31,9 +31,9 @@ protected:
 
 public:
 
-	Shape3D(){}
+	Shape3D() {}
 
-	Shape3D(glm::vec3 translationParam, float radiansParam, bool orbitalParam ) {
+	Shape3D(glm::vec3 translationParam, float radiansParam, bool orbitalParam) {
 		rotationMatrix = glm::mat4();
 		translationMatrix = glm::translate(glm::mat4(), translationParam);
 		rotationAxis = glm::vec3(0, 1, 0);
@@ -41,14 +41,14 @@ public:
 		orbital = orbitalParam;
 	}
 
-	glm::mat4 getPositionMatrix(){
+	glm::mat4 getPositionMatrix() {
 		if (orbital)
 			return rotationMatrix * translationMatrix;
 		else
 			return translationMatrix * rotationMatrix;
 	}
 
-	void setScaleMatrix(glm::vec3 matrix){
+	void setScaleMatrix(glm::vec3 matrix) {
 		scaleMatrix = glm::scale(glm::mat4(), matrix);
 	}
 
@@ -94,6 +94,15 @@ public:
 	void pitchRightorLeft(float r) {
 		rotationAxis = glm::vec3(1.0f, 0.0f, 0.0f);
 		rotationMatrix = glm::rotate(rotationMatrix, r, rotationAxis);
+	}
+
+	void gravity() {
+		float distance = glm::distance(glm::vec3(translationMatrix[3].x, translationMatrix[3].y, translationMatrix[3].z), glm::vec3(0, 0, 0));
+		float g = 90000000 / pow(distance, 2);
+		glm::vec3 direction = glm::normalize(glm::vec3(-1 * translationMatrix[3].x, -1 * translationMatrix[3].y, -1 * translationMatrix[3].z));
+
+		translationMatrix = glm::translate(translationMatrix, g*direction);
+
 	}
 
 	virtual void update() {

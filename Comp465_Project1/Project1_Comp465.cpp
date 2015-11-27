@@ -7,17 +7,17 @@ Project Member Names: Ernie Ledezma, Stanislav Kirdey
 Instructions:  Open up the .sln project and execute the .cpp file!
 
 Summary:
-Overall everything for Phase 1 was accomplished.  
-We based our project on the ManyModelsStatic and ManyCubes examples. 
+Overall everything for Phase 1 was accomplished.
+We based our project on the ManyModelsStatic and ManyCubes examples.
 We decided to use Shape3D.hpp class from the ManyCubes static since we found that loading models though it was much more efficient.
-Using classes and objects helps to make our project more modular and therefore easier to edit for future phases. 
+Using classes and objects helps to make our project more modular and therefore easier to edit for future phases.
 And there was rotation logic available in the Shape3D that helped us with our orbital rotations.
 As our project stands we have loaded 7 models, 5 of which are all spheres and the other is the custom models.
-The moons and planets seem to be orbiting correctly and are at the right spot.  
+The moons and planets seem to be orbiting correctly and are at the right spot.
 For our missile model we used a ‘missile.tri” shape and for the warbird we have “battleship.tri”. Both were done in AC3D.
-Each View is controlled by pressing “v”.  At first the project is loaded in an initial view.  
-When the user hits v for the first time he enter the “toggle loop” which starts out with “Front View”. 
-So it might seem like hitting “v” did nothing the first time, but it did. 
+Each View is controlled by pressing “v”.  At first the project is loaded in an initial view.
+When the user hits v for the first time he enter the “toggle loop” which starts out with “Front View”.
+So it might seem like hitting “v” did nothing the first time, but it did.
 It simply switched from default view, to the first view on the toggle loop, which is “Front View”.
 */
 
@@ -39,7 +39,7 @@ char * modelFile[nShapes] = {
 	"primus.tri",
 	"secundus.tri",
 	"battleship.tri",
-	"missile.tri", 
+	"missile.tri",
 	"missileSite.tri",
 	"missileSite.tri"
 };
@@ -51,9 +51,9 @@ const int nVertices[nShapes] = {
 	264 * 3,
 	264 * 3,
 	734 * 3,
-	112 * 3, 
-	1696 * 3,
-	1696 * 3
+	112 * 3,
+	1696 * 3, //missile site unum
+	1696 * 3 //missile site secundus
 };
 
 float modelSize[nShapes] = {
@@ -63,13 +63,13 @@ float modelSize[nShapes] = {
 	100.0f,
 	150.0f,
 	100.0f,
-	25.0f, 
-    500.0f, 
-    500.0f};
+	25.0f,
+	30.0f,
+	30.0f };
 
 float modelBR[nShapes];  // modelFile's bounding radius
 
-// Position shapes in the world
+						 // Position shapes in the world
 glm::vec3 translate[nShapes] = {
 	glm::vec3(0, 0, 0),
 	glm::vec3(4000, 0, 0),
@@ -78,11 +78,11 @@ glm::vec3 translate[nShapes] = {
 	glm::vec3(1750, 0, 0),
 	glm::vec3(5000, 1000, 5000),
 	glm::vec3(4900, 1000, 4850),
-	glm::vec3(2000, 0, 2000), 
-	glm::vec3(-2000, 0, -2000) };
+	glm::vec3(4000, 220, 0),
+	glm::vec3(1750, 175, 0) };
 
 // Rotation angels
-float radians[nShapes] = { 0.0f, 0.4f, 0.2f, 0.4f, 0.2f, 0.0f, 0.0f, 0.0f, 0.0f };
+float radians[nShapes] = { 0.0f, 0.4f, 0.2f, 0.4f, 0.2f, 0.0f, 0.0f, 0.4f, 0.2f };
 
 bool orbital[nShapes] = { false, true, true, true, true, false, false, true, true };
 
@@ -116,7 +116,7 @@ glm::mat4 UnumMatrix;
 glm::mat4 WarbirdMatrix;
 glm::mat4 ModelViewProjectionMatrix; // set in display();
 
-int cameraSwitch = -1;
+int cameraSwitch = 0;
 
 bool idleTimerFlag = false;
 // vectors and values for lookAt
@@ -132,8 +132,9 @@ int updateCount = 0;
 
 int thruster = 10; //thrustuer speed initially at 0
 int warp = 1;  //1 = unum, 2 = duo
+boolean gravity = false; //set gravity on/off, init off
 
-// load the shader programs, vertex data from model files, create the solids, set initial view
+						 // load the shader programs, vertex data from model files, create the solids, set initial view
 void init() {
 	// load the shader programs
 	shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
@@ -145,12 +146,12 @@ void init() {
 
 	// load the buffers from the model files
 	for (int i = 0; i < nShapes; i++) {
-	
+
 		modelBR[i] = loadModelBuffer(modelFile[i], nVertices[i], VAO[i], buffer[i], shaderProgram,
 			vPosition[i], vColor[i], vNormal[i], "vPosition", "vColor", "vNormal");
 		// set scale for models given bounding radius  
 		scale[i] = glm::vec3(modelSize[i] * 1.0f / modelBR[i]);
-		
+
 	}
 
 	// Set the positional light
@@ -175,17 +176,17 @@ void init() {
 
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 	lastTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
-	// create shape
-	for (int i = 0; i < nShapes; i++){
-		if (i == 6){
+											// create shape
+	for (int i = 0; i < nShapes; i++) {
+		if (i == 6) {
 			// Create a missle shape and send it to the travel
 			shape[i] = new Missle3D(translate[i]);
 		}
-		else{
+		else {
 			shape[i] = new Shape3D(translate[i], radians[i], orbital[i]);
 		}
 
-		
+
 		shape[i]->setScaleMatrix(scale[i]);
 	}
 	printf("%d Shapes created \n", nShapes);
@@ -221,13 +222,14 @@ void display() {
 	//Update model matrices
 	for (int m = 0; m < nShapes; m++) {
 
-		if (m == 3 || m == 4){
+		if (m == 3 || m == 4 || m == 8) {
+
 			DuoMatrix = shape[2]->getPositionMatrix();
 			modelMatrix = shape[m]->getModelMatrix();
 			modelMatrix = DuoMatrix * modelMatrix;
 
 		}
-		else{
+		else {
 			modelMatrix = shape[m]->getModelMatrix();
 		}
 
@@ -237,46 +239,43 @@ void display() {
 		glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
 		glBindVertexArray(VAO[m]);
 		glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
-	
+
 	}
-		DuoMatrix = shape[2]->getPositionMatrix();
-		UnumMatrix = shape[1]->getPositionMatrix();
-		WarbirdMatrix = shape[5]->getPositionMatrix();
+	DuoMatrix = shape[2]->getPositionMatrix();
+	UnumMatrix = shape[1]->getPositionMatrix();
+	WarbirdMatrix = shape[5]->getPositionMatrix();
 
-		if (cameraSwitch == 2) {
+	if (cameraSwitch == 2) {
 
-			
-			glm::mat4 eyeWB = glm::translate(WarbirdMatrix, glm::vec3(0.0f, 300.0f, 1000.0f));
-			glm::mat4 atWB = glm::translate(WarbirdMatrix, glm::vec3(0.0f, 300.0f, 0.0f));
-			eye = glm::vec3(eyeWB[3].x, eyeWB[3].y, eyeWB[3].z);
-			at = glm::vec3(atWB[3].x, atWB[3].y, atWB[3].z);
-			up = glm::vec3(WarbirdMatrix[1].x, WarbirdMatrix[1].y, WarbirdMatrix[1].z);
-			strcpy(viewStr, "Warbird");
-			viewMatrix = glm::lookAt(eye, at, up);
-		}
+		glm::mat4 eyeWB = glm::translate(WarbirdMatrix, glm::vec3(0.0f, 300.0f, 1000.0f));
+		glm::mat4 atWB = glm::translate(WarbirdMatrix, glm::vec3(0.0f, 300.0f, 0.0f));
+		eye = glm::vec3(eyeWB[3].x, eyeWB[3].y, eyeWB[3].z);
+		at = glm::vec3(atWB[3].x, atWB[3].y, atWB[3].z);
+		up = glm::vec3(WarbirdMatrix[1].x, WarbirdMatrix[1].y, WarbirdMatrix[1].z);
+		strcpy(viewStr, "Warbird");
+		viewMatrix = glm::lookAt(eye, at, up);
+	}
 
-		if (cameraSwitch == 3) {
+	if (cameraSwitch == 3) {
 
-			eye = glm::vec3(UnumMatrix[3].x, 4000.0f, UnumMatrix[3].z);
-			at = glm::vec3(UnumMatrix[3].x, UnumMatrix[3].y, UnumMatrix[3].z);
-			up = glm::vec3(1.0f, 0.0f, 0.0f);
-			strcpy(viewStr, "Unum");
-			viewMatrix = glm::lookAt(eye, at, up);
-		}
+		eye = glm::vec3(UnumMatrix[3].x, 4000.0f, UnumMatrix[3].z);
+		at = glm::vec3(UnumMatrix[3].x, UnumMatrix[3].y, UnumMatrix[3].z);
+		up = glm::vec3(1.0f, 0.0f, 0.0f);
+		strcpy(viewStr, "Unum");
+		viewMatrix = glm::lookAt(eye, at, up);
+	}
 
-		if (cameraSwitch == 4) {
+	if (cameraSwitch == 4) {
 
-			eye = glm::vec3(DuoMatrix[3].x, 4000.0f, DuoMatrix[3].z);
-			at = glm::vec3(DuoMatrix[3].x, DuoMatrix[3].y, DuoMatrix[3].z);
-			up = glm::vec3(1.0f, 0.0f, 0.0f);
-			strcpy(viewStr, "Duo");
-			
-			viewMatrix = glm::lookAt(eye, at, up);
+		eye = glm::vec3(DuoMatrix[3].x, 4000.0f, DuoMatrix[3].z);
+		at = glm::vec3(DuoMatrix[3].x, DuoMatrix[3].y, DuoMatrix[3].z);
+		up = glm::vec3(1.0f, 0.0f, 0.0f);
+		strcpy(viewStr, "Duo");
 
-		}
+		viewMatrix = glm::lookAt(eye, at, up);
+	}
 
-		glUniform3f(viewLoc, viewMatrix[1].x, viewMatrix[2].y, viewMatrix[3].z);
-	
+	glUniform3f(viewLoc, viewMatrix[1].x, viewMatrix[2].y, viewMatrix[3].z);
 	glutSwapBuffers();
 	frameCount++;
 	// see if a second has passed to set estimated fps information
@@ -291,11 +290,17 @@ void display() {
 
 }
 
-void update(){
+void update() {
+
+
 	for (int i = 0; i < nShapes; i++) shape[i]->update();
 
+	if (gravity) {
+		shape[5]->gravity();
+	}
+
 	updateCount++;
-	currentTimeU = glutGet(GLUT_ELAPSED_TIME); 
+	currentTimeU = glutGet(GLUT_ELAPSED_TIME);
 	timeIntervalU = currentTimeU - lastTimeU;
 
 
@@ -315,9 +320,9 @@ void intervalTimer(int i) {
 
 // Quit or set the view
 void keyboard(unsigned char key, int x, int y) {
-	
+
 	switch (key) {
-	
+
 	case 033: case 'q':  case 'Q': exit(EXIT_SUCCESS); break;
 
 	case 's': case'S':
@@ -336,7 +341,17 @@ void keyboard(unsigned char key, int x, int y) {
 
 		break;
 
-	case 't': case 'T': 
+	case 'g': case 'G':
+		if (gravity) {
+			gravity = false;
+
+		}
+		else {
+			gravity = true;
+		}
+		break;
+
+	case 't': case 'T':
 		if (timerDelay == 40) {
 			timerDelay = 100;
 		}
@@ -350,19 +365,19 @@ void keyboard(unsigned char key, int x, int y) {
 		else if (timerDelay == 500) {
 			timerDelay = 40;
 		}
-	
+
 		break;
 
 	case 'w': case 'W':
 		if (warp == 1) {
-			
+
 			glm::mat4 uPosition = shape[1]->getPositionMatrix();
 
-			shape[5]->warpShip(uPosition,1);
+			shape[5]->warpShip(uPosition, 1);
 			warp = 2;
 		}
 		else if (warp == 2) {
-			
+
 
 			glm::mat4 dPosition = shape[2]->getPositionMatrix();
 
@@ -372,30 +387,61 @@ void keyboard(unsigned char key, int x, int y) {
 
 		break;
 
-	case 'v': case 'V':  
-		cameraSwitch++;
 
-		if (cameraSwitch == 5){
+
+	case 'v': case 'V':
+
+		cameraSwitch++;
+		if (cameraSwitch == 5) {
 			cameraSwitch = 0;
 			printf("Switch Reset\n");
 		}
-		
-			if (cameraSwitch == 0){
-				eye = glm::vec3(0.0f, 10000.0f, 20000.0f);
-				at = glm::vec3(0.0f, 0.0f, 0.0f);
-				up = glm::vec3(0.0f, 1.0f, 0.0f);
-				strcpy(viewStr, "Front");
-				
-			}
-			if (cameraSwitch == 1){
-				eye = glm::vec3(0.0f, 20000.0f, 0.0f);
-				at = glm::vec3(0.0f, 0.0f, 0.0f);
-				up = glm::vec3(1.0f, 0.0f, 0.0f);
-				strcpy(viewStr, "Top");
-				
-			}
 
-			break;
+		if (cameraSwitch == 0) {
+			eye = glm::vec3(0.0f, 10000.0f, 20000.0f);
+			at = glm::vec3(0.0f, 0.0f, 0.0f);
+			up = glm::vec3(0.0f, 1.0f, 0.0f);
+			strcpy(viewStr, "Front");
+
+		}
+		if (cameraSwitch == 1) {
+			eye = glm::vec3(0.0f, 20000.0f, 0.0f);
+			at = glm::vec3(0.0f, 0.0f, 0.0f);
+			up = glm::vec3(1.0f, 0.0f, 0.0f);
+			strcpy(viewStr, "Top");
+
+		}
+
+
+		break;
+
+	case 'x': case 'X':
+
+		cameraSwitch--;
+		if (cameraSwitch == 0) {
+			eye = glm::vec3(0.0f, 10000.0f, 20000.0f);
+			at = glm::vec3(0.0f, 0.0f, 0.0f);
+			up = glm::vec3(0.0f, 1.0f, 0.0f);
+			strcpy(viewStr, "Front");
+
+		}
+		if (cameraSwitch == 1) {
+			eye = glm::vec3(0.0f, 20000.0f, 0.0f);
+			at = glm::vec3(0.0f, 0.0f, 0.0f);
+			up = glm::vec3(1.0f, 0.0f, 0.0f);
+			strcpy(viewStr, "Top");
+
+		}
+
+
+		if (cameraSwitch == -1) {
+			cameraSwitch = 4;
+			printf("Switch Reset\n");
+		}
+
+
+
+		break;
 
 	}
 	viewMatrix = glm::lookAt(eye, at, up);
@@ -405,7 +451,7 @@ void keyboard(unsigned char key, int x, int y) {
 void controls(int k, int x, int y) {
 
 	int specialKey = glutGetModifiers();
-		
+
 	if (k == GLUT_KEY_UP) {
 		if (specialKey == GLUT_ACTIVE_CTRL) {
 			shape[5]->pitchRightorLeft(0.02f);
@@ -413,7 +459,7 @@ void controls(int k, int x, int y) {
 		else {
 			shape[5]->mForward(thruster);
 		}
-		
+
 	}
 	else if (k == GLUT_KEY_DOWN) {
 		if (specialKey == GLUT_ACTIVE_CTRL) {
@@ -467,6 +513,7 @@ int main(int argc, char* argv[]) {
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
 	glutTimerFunc(timerDelay, intervalTimer, 1);
+	glutIdleFunc(display);  //disp
 	glutSpecialFunc(controls);
 	glutMainLoop();
 	printf("done\n");
