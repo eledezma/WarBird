@@ -116,6 +116,8 @@ glm::mat4 UnumMatrix;
 glm::mat4 WarbirdMatrix;
 glm::mat4 ModelViewProjectionMatrix; // set in display();
 
+GLboolean debugSetOn;
+
 int cameraSwitch = 0;
 
 bool idleTimerFlag = false;
@@ -134,8 +136,16 @@ int thruster = 10; //thrustuer speed initially at 0
 int warp = 1;  //1 = unum, 2 = duo
 boolean gravity = false; //set gravity on/off, init off
 
-						 // load the shader programs, vertex data from model files, create the solids, set initial view
-void init() {
+GLuint HeadLightPosition, HeadLightIntensity, PointLightPosition, PointLightIntensity;
+GLboolean HeadLightOn, PointLightOn;
+
+// load the shader programs, vertex data from model files, create the solids, set initial view
+void init() {	
+	// set render state values
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_POLYGON_SMOOTH);
+
 	// load the shader programs
 	shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 	glUseProgram(shaderProgram);
@@ -154,25 +164,14 @@ void init() {
 
 	}
 
-	// Set the positional light
-	GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
-	glm::vec3 lightPos1 = glm::vec3(0.0f, 5000.0f, 0.0f);
-	glUniform3f(lightPosLoc, lightPos1.x, lightPos1.y, lightPos1.z);
-
 	modelLoc = glGetUniformLocation(shaderProgram, "modelPos");
 	viewLoc = glGetUniformLocation(shaderProgram, "viewPos");
-
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
 	// initially use a front view
 	eye = glm::vec3(0.0f, 10000.0f, 20000.0f);
 	at = glm::vec3(0.0f, 0.0f, 0.0f);
 	up = glm::vec3(0.0f, 1.0f, 0.0f);
 	viewMatrix = glm::lookAt(eye, at, up);
-
-	// set render state values
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_POLYGON_SMOOTH);
 
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 	lastTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
@@ -190,6 +189,27 @@ void init() {
 		shape[i]->setScaleMatrix(scale[i]);
 	}
 	printf("%d Shapes created \n", nShapes);
+
+
+	// Set the initial light settings
+	GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
+	GLint PointLightPositionLoc = glGetUniformLocation(shaderProgram, "PointLightPosition");
+	GLint PointLightOnLoc = glGetUniformLocation(shaderProgram, "PointLightOn");
+	GLint PointLightIntensityLoc = glGetUniformLocation(shaderProgram, "PointLightIntensity");
+
+	HeadLightPosition = glGetUniformLocation(shaderProgram, "HeadLightPosition");
+	HeadLightOn = glGetUniformLocation(shaderProgram, "HeadLightOn");
+	HeadLightIntensity = glGetUniformLocation(shaderProgram, "HeadLightIntensity");
+
+	glm::vec3 lightPos1 = glm::vec3(0.1f, 0.1, 0.1f);
+
+	glUniform3f(PointLightPositionLoc, lightPos1.x, lightPos1.y, lightPos1.z);
+	glUniform1f(PointLightOnLoc, true);
+	glUniform3f(PointLightIntensityLoc, 0.3f, 0.2f, 0.1f);
+
+	glUniform1f(HeadLightOn, true);
+	glUniform3f(HeadLightIntensity, 0.1f, 0.3f, 0.4f);
+
 }
 
 void reshape(int width, int height) {
@@ -254,6 +274,7 @@ void display() {
 		up = glm::vec3(WarbirdMatrix[1].x, WarbirdMatrix[1].y, WarbirdMatrix[1].z);
 		strcpy(viewStr, "Warbird");
 		viewMatrix = glm::lookAt(eye, at, up);
+	
 	}
 
 	if (cameraSwitch == 3) {
@@ -263,6 +284,7 @@ void display() {
 		up = glm::vec3(1.0f, 0.0f, 0.0f);
 		strcpy(viewStr, "Unum");
 		viewMatrix = glm::lookAt(eye, at, up);
+
 	}
 
 	if (cameraSwitch == 4) {
@@ -273,9 +295,13 @@ void display() {
 		strcpy(viewStr, "Duo");
 
 		viewMatrix = glm::lookAt(eye, at, up);
+
 	}
+	glUniform3f(HeadLightPosition, viewMatrix[0].x, viewMatrix[0].y, viewMatrix[0].z);
 
 	glUniform3f(viewLoc, viewMatrix[1].x, viewMatrix[2].y, viewMatrix[3].z);
+
+
 	glutSwapBuffers();
 	frameCount++;
 	// see if a second has passed to set estimated fps information
@@ -445,6 +471,7 @@ void keyboard(unsigned char key, int x, int y) {
 
 	}
 	viewMatrix = glm::lookAt(eye, at, up);
+	glUniform3f(HeadLightPosition, viewMatrix[0].x, viewMatrix[0].y, viewMatrix[0].z);
 	updateTitle();
 }
 
@@ -495,6 +522,7 @@ int main(int argc, char* argv[]) {
 	glutInitContextVersion(3, 3);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 	glutCreateWindow("Project 1: Ernie Ledezma, Stanislav Kirdey");
+
 	// initialize and verify glew
 	glewExperimental = GL_TRUE;  // needed my home system 
 	GLenum err = glewInit();

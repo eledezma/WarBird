@@ -1,39 +1,60 @@
 # version 330 core
 
 in vec4 color;
-in vec3 fNormal; 
+in vec3 fNormal;
 in vec3 fPosition;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform vec3 HeadLightPosition;
+uniform vec3 HeadLightIntensity;
+uniform vec3 PointLightPosition;
+uniform vec3 PointLightIntensity;
+
+uniform bool HeadLightOn; // toggles set in application
+uniform bool PointLightOn;
+uniform bool DebugOn; 
 
 out vec4 fragColor;
 
+vec3 vLight(vec3 LightPosition, vec3 LightIntensity, bool directional) {
+    float ambient = 0.2f;
+    // scale directional ambient
+	float diffuse = 0.0f;
+    // compute diffuse in all cases
+	vec3 n, s;
+    // normal, light source
+	if (directional)
+	{ 
+		s = normalize(LightPosition); 
+	}
+    else {
+    // point light has no ambient
+		s = normalize(LightPosition - fPosition);
+		ambient = 0.0f;
+
+	}
+	n = normalize(fNormal);
+    diffuse = max(dot(s, n), 0.0);
+
+    // reflected light
+	return ambient * LightIntensity + diffuse * LightIntensity;
+}
+
+
+
 void main() {
+	vec3 tempColor = vec3(color) * 0.1f;
+	//initial value
+	if (HeadLightOn){
+		tempColor += vLight(HeadLightPosition,HeadLightIntensity, true);
+	}
+	if (PointLightOn) 
+	{
+		tempColor += vLight(PointLightPosition, PointLightIntensity, false);
+	}
+	
+	fragColor = vec4(tempColor, 1.0);
+}
 
-  // Setting variables
-  vec3 objColor = vec3(color);
-    
-  // Ambient
-  float ambientStrength = 0.1f;
-  vec3 ambient = ambientStrength * vec3(1.0f, 0.7f, 0.0f);
 
-  // Diffuse
-  vec3 norm = normalize(fNormal);
-  vec3 lightDir = normalize(lightPos - fPosition);
-  float diff = max(dot(fNormal, lightDir), 0.0f);
-  vec3 diffuse = diff * objColor;
-
-
-  // Specular
-  float specularStrength = 0.5f;
-  vec3 viewDir = normalize(viewPos - fPosition);
-  vec3 reflectDir = reflect(-lightDir, norm);  
-  float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-  vec3 specular = specularStrength * spec * vec3(1.0f, 0.7f, 0.0f);  
-
-  vec3 result = (ambient + diffuse + specular) * objColor;
-  
-  fragColor = vec4(result, 1.0f);
-
-  }
