@@ -25,11 +25,14 @@ It simply switched from default view, to the first view on the toggle loop, whic
 # include "../includes465/include465.hpp"  
 
 # include "Shape3D.hpp"
-# include "Missle3D.hpp"
 
 // Amount of Shapes
-const int nShapes = 9;
+const int nShapes = 28;
+const int WarbirdMissileRange = 5000;
+int WBmissiles = 10;
 Shape3D * shape[nShapes];
+int nextMissile = 6;
+int counter = 0;
 
 // Model for shapes
 char * modelFile[nShapes] = {
@@ -39,6 +42,25 @@ char * modelFile[nShapes] = {
 	"primus.tri",
 	"secundus.tri",
 	"battleship.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
+	"missile.tri",
 	"missile.tri",
 	"missileSite.tri",
 	"missileSite.tri"
@@ -52,6 +74,25 @@ const int nVertices[nShapes] = {
 	264 * 3,
 	734 * 3,
 	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
+	112 * 3,
 	1696 * 3, //missile site unum
 	1696 * 3 //missile site secundus
 };
@@ -63,6 +104,25 @@ float modelSize[nShapes] = {
 	100.0f,
 	150.0f,
 	100.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
+	25.0f,
 	25.0f,
 	30.0f,
 	30.0f };
@@ -77,19 +137,40 @@ glm::vec3 translate[nShapes] = {
 	glm::vec3(900, 0, 0),
 	glm::vec3(1750, 0, 0),
 	glm::vec3(5000, 1000, 5000),
-	glm::vec3(4900, 1000, 4850),
-	glm::vec3(4000, 220, 0),
-	glm::vec3(1750, 175, 0) };
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(0, 0, 0),
+	glm::vec3(4000, 240, 0),  //missile base unum
+	glm::vec3(1750, 190, 0) }; //missile site in moon
 
 // Rotation angels
-float radians[nShapes] = { 0.0f, 0.4f, 0.2f, 0.4f, 0.2f, 0.0f, 0.0f, 0.4f, 0.2f };
+float radians[nShapes] = { 0.0f, 0.004f, 0.002f, 0.004f, 0.002f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.004f, 0.002f };
 
-bool orbital[nShapes] = { false, true, true, true, true, false, false, true, true };
+bool orbital[nShapes] = { false, true, true, true, true, false, false, false, false, false, false, false, false, false, false, false,
+false, false, false, false, false, false, false, false, false, false, true, true };
 
 // display state and "state strings" for title display
 // window title strings
-char warbird[50] = "Warbird:        ";
-char unum[50] = "Unum:        ";
+char warbird[50] = "Warbird:  10       ";
+char unum[50] = "Unum:          ";
 char secundus[50] = "Secundus:        ";
 char us[50] = "U/S:";
 char fs[50] = "F/S:";
@@ -116,6 +197,13 @@ glm::mat4 UnumMatrix;
 glm::mat4 WarbirdMatrix;
 glm::mat4 ModelViewProjectionMatrix; // set in display();
 
+
+glm::vec3 missilePos;
+glm::vec3 site1Pos;
+glm::vec3 site2Pos;
+float d1;
+float d2;
+glm::mat4 currentTarget;
 GLboolean debugSetOn;
 
 int cameraSwitch = 0;
@@ -131,16 +219,18 @@ int timerDelay = 40, frameCount = 0;  // A delay of 40 milliseconds is 25 update
 double currentTime, lastTime, timeInterval;
 double currentTimeU, lastTimeU, timeIntervalU;
 int updateCount = 0;
+int targetNumber;
 
-int thruster = 10; //thrustuer speed initially at 0
+int thruster = 10; //thrustuer speed initially at 10
 int warp = 1;  //1 = unum, 2 = duo
 boolean gravity = false; //set gravity on/off, init off
 
 GLuint HeadLightPosition, HeadLightIntensity, PointLightPosition, PointLightIntensity;
-GLboolean HeadLightOn, PointLightOn;
+GLboolean HeadLightOn, PointLightOn;
+
 
 // load the shader programs, vertex data from model files, create the solids, set initial view
-void init() {	
+void init() {
 	// set render state values
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -177,15 +267,11 @@ void init() {
 	lastTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
 											// create shape
 	for (int i = 0; i < nShapes; i++) {
-		if (i == 6) {
-			// Create a missle shape and send it to the travel
-			shape[i] = new Missle3D(translate[i]);
-		}
-		else {
-			shape[i] = new Shape3D(translate[i], radians[i], orbital[i]);
-		}
+
+		shape[i] = new Shape3D(translate[i], radians[i], orbital[i]);
 
 
+		shape[i]->setBoundingRadius(modelBR[i] * modelSize[i]);
 		shape[i]->setScaleMatrix(scale[i]);
 	}
 	printf("%d Shapes created \n", nShapes);
@@ -242,9 +328,9 @@ void display() {
 	//Update model matrices
 	for (int m = 0; m < nShapes; m++) {
 
-		if (m == 3 || m == 4 || m == 8) {
+		if (m == 3 || m == 4 || m == 27) {
 
-			DuoMatrix = shape[2]->getPositionMatrix();
+			DuoMatrix = shape[2]->getOrientationMatrix();
 			modelMatrix = shape[m]->getModelMatrix();
 			modelMatrix = DuoMatrix * modelMatrix;
 
@@ -261,9 +347,9 @@ void display() {
 		glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
 
 	}
-	DuoMatrix = shape[2]->getPositionMatrix();
-	UnumMatrix = shape[1]->getPositionMatrix();
-	WarbirdMatrix = shape[5]->getPositionMatrix();
+	DuoMatrix = shape[2]->getOrientationMatrix();
+	UnumMatrix = shape[1]->getOrientationMatrix();
+	WarbirdMatrix = shape[5]->getOrientationMatrix();
 
 	if (cameraSwitch == 2) {
 
@@ -274,7 +360,7 @@ void display() {
 		up = glm::vec3(WarbirdMatrix[1].x, WarbirdMatrix[1].y, WarbirdMatrix[1].z);
 		strcpy(viewStr, "Warbird");
 		viewMatrix = glm::lookAt(eye, at, up);
-	
+
 	}
 
 	if (cameraSwitch == 3) {
@@ -316,16 +402,111 @@ void display() {
 
 }
 
+
+GLboolean collision(Shape3D * a, Shape3D * b, int target) {
+
+
+	float d;
+
+	if (target == 27) {
+		DuoMatrix = shape[2]->getOrientationMatrix();
+		modelMatrix = shape[27]->getModelMatrix();
+		modelMatrix = DuoMatrix * modelMatrix;
+		d = glm::distance(getPosition(a->getOrientationMatrix()), getPosition(modelMatrix));
+	}
+	else {
+		d = glm::distance(getPosition(a->getOrientationMatrix()), getPosition(b->getOrientationMatrix()));
+	}
+
+
+	if (a->getBoundingRadius() + 250 + b->getBoundingRadius() + 250 > d) {
+		return true;
+	}
+
+	return false;
+}
+
 void update() {
 
 
-	for (int i = 0; i < nShapes; i++) shape[i]->update();
+	for (int i = 0; i < nShapes; i++) {
 
+		shape[i]->update();
+		if (shape[i]->getActive()) {
+			if (shape[i]->getSmartMissile()) {
+
+				if (shape[i]->getTarget() == false) {  //if no target look for it
+					//printf("\n %f", d1);
+					if (shape[26]->getDestroyed() == false) {
+						site1Pos = getPosition(shape[26]->getOrientationMatrix());
+						missilePos = getPosition(shape[i]->getOrientationMatrix());
+						d1 = distance(site1Pos, missilePos);
+
+						if (d1 < 5000) {
+							targetNumber = 26;
+							currentTarget = shape[26]->getOrientationMatrix();
+							shape[i]->orientTowards(currentTarget);
+							shape[i]->hasTarget(true);
+
+						}
+
+					}
+
+					if (shape[27]->getDestroyed() == false) {
+						DuoMatrix = shape[2]->getOrientationMatrix();
+						modelMatrix = shape[27]->getModelMatrix();
+						modelMatrix = DuoMatrix * modelMatrix;
+						missilePos = getPosition(shape[i]->getOrientationMatrix());
+
+						site2Pos = getPosition(modelMatrix);
+						d2 = distance(site2Pos, missilePos);
+
+
+						if (d2 < 5000) {
+							targetNumber = 27;
+							currentTarget = modelMatrix;
+							shape[i]->orientTowards(currentTarget);
+							shape[i]->hasTarget(true);
+
+						}
+					}
+
+					shape[i]->mForward(20);  //keep moving at 20 speed regardless of orientation
+				}
+
+				else {  //target has been found
+					if (targetNumber == 27) {
+						currentTarget = modelMatrix;
+					}
+					else {
+						currentTarget = shape[targetNumber]->getOrientationMatrix();
+					}
+
+					shape[i]->orientTowards(currentTarget);
+					shape[i]->mForward(20);//once target is on lock, pursue it
+
+					if (collision(shape[i], shape[targetNumber], targetNumber)) {
+						printf("\n Target Destroyed\n");
+						shape[targetNumber]->setScaleMatrix(glm::vec3(0, 0, 0));  //destroy both missile and target if collided
+						shape[targetNumber]->DestroyObject();
+						shape[i]->DestroyObject();
+					}
+				}
+
+			}
+			else {
+				shape[i]->mForward(20);  //intial move before becoming smart
+			}
+		}
+	}
 	if (gravity) {
 		shape[5]->gravity();
 	}
 
+
+
 	updateCount++;
+	counter++;
 	currentTimeU = glutGet(GLUT_ELAPSED_TIME);
 	timeIntervalU = currentTimeU - lastTimeU;
 
@@ -336,6 +517,7 @@ void update() {
 		updateCount = 0;
 		updateTitle();
 	}
+
 	glutPostRedisplay();
 }
 
@@ -397,7 +579,7 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'w': case 'W':
 		if (warp == 1) {
 
-			glm::mat4 uPosition = shape[1]->getPositionMatrix();
+			glm::mat4 uPosition = shape[1]->getOrientationMatrix();
 
 			shape[5]->warpShip(uPosition, 1);
 			warp = 2;
@@ -405,7 +587,7 @@ void keyboard(unsigned char key, int x, int y) {
 		else if (warp == 2) {
 
 
-			glm::mat4 dPosition = shape[2]->getPositionMatrix();
+			glm::mat4 dPosition = shape[2]->getOrientationMatrix();
 
 			shape[5]->warpShip(dPosition, 2);
 			warp = 1;
@@ -441,6 +623,22 @@ void keyboard(unsigned char key, int x, int y) {
 
 		break;
 
+	case 'f': case 'F': 
+
+		if (shape[nextMissile - 1]->getActive() == false && nextMissile != 17) {
+
+			WBmissiles--;
+
+			shape[nextMissile]->setTranslation(shape[5]->getTranslation());
+			shape[nextMissile]->setRotation(shape[5]->getRotation());
+			shape[nextMissile]->Active(true);
+			printf("\n %i", nextMissile);
+			sprintf(warbird, "Warbird:  %i       ", WBmissiles);
+
+			nextMissile++;
+		}
+
+		break;
 	case 'x': case 'X':
 
 		cameraSwitch--;
@@ -448,7 +646,7 @@ void keyboard(unsigned char key, int x, int y) {
 			eye = glm::vec3(0.0f, 10000.0f, 20000.0f);
 			at = glm::vec3(0.0f, 0.0f, 0.0f);
 			up = glm::vec3(0.0f, 1.0f, 0.0f);
-			strcpy(viewStr, "Front");
+
 
 		}
 		if (cameraSwitch == 1) {
