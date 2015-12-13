@@ -107,7 +107,7 @@ const int nVertices[nShapes] = {
 	112 * 3,
 	1696 * 3, //missile site unum
 	1696 * 3, //missile site secundus
-	12 * 3 // box
+	49152 * 3 // box
 };
 
 float modelSize[nShapes] = {

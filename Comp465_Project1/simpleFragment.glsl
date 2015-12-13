@@ -18,14 +18,8 @@ uniform bool DebugOn;
 
 out vec4 fragColor;
 
-highp float rand(vec2 co)
-{
-    highp float a = 12.9898;
-    highp float b = 78.233;
-    highp float c = 43758.5453;
-    highp float dt= dot(co.xy ,vec2(a,b));
-    highp float sn= mod(dt,3.14);
-    return fract(sin(sn) * c);
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
 
@@ -68,10 +62,8 @@ void main() {
 
 	if (IsTexture){   // use texture on surface
 		
-		float x = rand(fPosition.xz);
-		float y = rand(color.xz);
-		float z = rand(fNormal.xz);
-        fragColor = vec4(x, y, z, 1);
+		float x = rand(fPosition.xy);
+        fragColor = vec4(x/6.0, x/4.0, x/3.0, 1.0);
 	}
 	else{
 		fragColor = vec4(tempColor, 1.0);

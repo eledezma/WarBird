@@ -16,7 +16,7 @@ out vec3 fNormal;
 void main() {
   color = vColor;
   gl_Position = ModelViewProjection * vPosition;
-  fPosition = vec3(model * vPosition);
+  fPosition = vec3(vPosition);
   fNormal = vNormal;
 
   }
