@@ -56,9 +56,18 @@ GLuint texture, Texture, light;  // texture id, shader, light handles
 const int nShapes = 29;
 const int WarbirdMissileRange = 5000;
 int WBmissiles = 10;
+int secundusMissiles = 5;
+int unumMissiles = 5;
 Shape3D * shape[nShapes];
 int nextMissile = 6;
+int unumMissile = 16;
+int secundusMissile = 21;
+bool secundusMissileOn = false;
+bool unumMissileOn = false;
+bool secundusSite = false;
+bool unumSite = false;
 int counter = 0;
+int targetsDown = 0;
 
 // Model for shapes
 char * modelFile[nShapes] = {
@@ -200,14 +209,16 @@ false, false, false, false, false, false, false, false, false, false, true, true
 // display state and "state strings" for title display
 // window title strings
 char warbird[50] = "Warbird:  10       ";
-char unum[50] = "Unum:          ";
-char secundus[50] = "Secundus:        ";
+char unum[50] = "Unum:  5       ";
+char secundus[50] = "Secundus:  5       ";
 char us[50] = "U/S:";
 char fs[50] = "F/S:";
 char view[50] = "View: ";
-char fpsStr[15], viewStr[15] = "Front";
+char winlose[50] = "";
+char fpsStr[15];
+char viewStr[25] = "Front   ";
 char updStr[15];
-char titleStr[100];
+char titleStr[200];
 
 GLuint VAO[nShapes];      // Vertex Array Objects
 GLuint buffer[nShapes];   // Vertex Buffer Objects
@@ -300,7 +311,7 @@ void init() {
 		shape[i] = new Shape3D(translate[i], radians[i], orbital[i]);
 
 
-		shape[i]->setBoundingRadius(modelBR[i] * modelSize[i]);
+		shape[i]->setBoundingRadius(modelSize[i]);
 		shape[i]->setScaleMatrix(scale[i]);
 	}
 	printf("%d Shapes created \n", nShapes);
@@ -356,6 +367,7 @@ void updateTitle() {
 	strcat(titleStr, fpsStr);
 	strcat(titleStr, view);
 	strcat(titleStr, viewStr);
+	strcat(titleStr, winlose);
 
 	glutSetWindowTitle(titleStr);
 }
@@ -465,27 +477,134 @@ GLboolean collision(Shape3D * a, Shape3D * b, int target) {
 	}
 	else {
 		d = glm::distance(getPosition(a->getOrientationMatrix()), getPosition(b->getOrientationMatrix()));
+		/*if (target == 0) {
+
+			printf("\n Distance: %f", d);
+			printf("\n radius: %f", b->getBoundingRadius());
+		}*/
 	}
 
-
-	if (a->getBoundingRadius() + 250 + b->getBoundingRadius() + 250 > d) {
-		return true;
+	if (target > 0 && target < 5) {
+		d = glm::distance(getPosition(a->getOrientationMatrix()), getPosition(b->getOrientationMatrix()));
+		if (d < b->getBoundingRadius() + a->getBoundingRadius()) {
+			return true;
+		}
 	}
+	else {
+		if (a->getBoundingRadius() + 300 + b->getBoundingRadius() + 300 > d) { //made bounding radius largers for missiles and ship and sites
+
+			return true;
+		}
+	}
+
 
 	return false;
 }
 
 void update() {
 
+	if (unumMissileOn == false) {
+		glm::vec3 warbird = getPosition(shape[5]->getOrientationMatrix());
+		glm::vec3 unumBase = getPosition(shape[26]->getOrientationMatrix());
+		d1 = distance(warbird, unumBase);
+
+		if (d1 <= 5000.0f) {
+			if (unumMissile < 21) {
+				shape[unumMissile]->warpShip(shape[1]->getOrientationMatrix(), 1);
+				shape[unumMissile]->Active(true);
+				shape[unumMissile]->hasTarget(true);
+				unumMissileOn = true;
+				unumMissiles--;
+				sprintf(unum, "Unum:  %i       ", unumMissiles);
+
+
+			}
+		}
+
+
+	}
+
+	for (int i = 0; i < nShapes; i++) {
+		if (i > 15 && i < 21) {
+			if (shape[i]->getActive()) {
+				shape[i]->orientTowards(shape[5]->getOrientationMatrix());
+				shape[i]->mForward(40);
+
+				if (collision(shape[5], shape[i], 5)) {
+					shape[i]->DestroyObject();
+					unumMissileOn = false;
+					unumMissile++;
+					sprintf(winlose, "%s", "  Cadet resigns from the war college");
+				}
+			}
+		}
+
+	}
+
+
+	if (secundusMissileOn == false) {
+		glm::vec3 warbird = getPosition(shape[5]->getOrientationMatrix());
+		DuoMatrix = shape[2]->getOrientationMatrix();
+		modelMatrix = shape[27]->getModelMatrix();
+		modelMatrix = DuoMatrix * modelMatrix;
+		glm::vec3 secundusBase = getPosition(modelMatrix);
+		d2 = distance(warbird, secundusBase);
+
+		if (d2 <= 5000.0f) {
+			printf("\n D2");
+			if (secundusMissile < 27) {
+
+				shape[secundusMissile]->warpShip(shape[2]->getOrientationMatrix(), 2);
+				shape[secundusMissile]->Active(true);
+				shape[secundusMissile]->hasTarget(true);
+				secundusMissileOn = true;
+				secundusMissiles--;
+				sprintf(secundus, "Secundus:  %i       ", secundusMissiles);
+
+			}
+		}
+
+	}
+
+	for (int i = 0; i < nShapes; i++) {
+		if (i > 20 && i < 27) {
+			if (shape[i]->getActive()) {
+				shape[i]->orientTowards(shape[5]->getOrientationMatrix());
+				shape[i]->mForward(40);
+
+				if (collision(shape[5], shape[i], 5)) {
+					shape[i]->DestroyObject();
+					secundusMissileOn = false;
+					secundusMissile++;
+					sprintf(winlose, "%s", "  Cadet resigns from war college");
+				}
+			}
+		}
+
+	}
+
+	for (int i = 0; i < nShapes; i++) {
+
+		if (i >= 0 && i < 5) {
+
+			if (collision(shape[5], shape[i], i)) {
+
+				sprintf(winlose, "%s", "  Cadet resigns from the war college");
+			}
+		}
+	}
 
 	for (int i = 0; i < nShapes; i++) {
 
 		shape[i]->update();
+
+
+
 		if (shape[i]->getActive()) {
 			if (shape[i]->getSmartMissile()) {
 
 				if (shape[i]->getTarget() == false) {  //if no target look for it
-					//printf("\n %f", d1);
+													   //printf("\n %f", d1);
 					if (shape[26]->getDestroyed() == false) {
 						site1Pos = getPosition(shape[26]->getOrientationMatrix());
 						missilePos = getPosition(shape[i]->getOrientationMatrix());
@@ -520,7 +639,7 @@ void update() {
 						}
 					}
 
-					shape[i]->mForward(20);  //keep moving at 20 speed regardless of orientation
+					shape[i]->mForward(40);  //keep moving at 20 speed regardless of orientation
 				}
 
 				else {  //target has been found
@@ -532,19 +651,26 @@ void update() {
 					}
 
 					shape[i]->orientTowards(currentTarget);
-					shape[i]->mForward(20);//once target is on lock, pursue it
+					shape[i]->mForward(40);//once target is on lock, pursue it
 
 					if (collision(shape[i], shape[targetNumber], targetNumber)) {
-						printf("\n Target Destroyed\n");
+						printf("\n Target Destroyed");
+						targetsDown++;
 						shape[targetNumber]->setScaleMatrix(glm::vec3(0, 0, 0));  //destroy both missile and target if collided
 						shape[targetNumber]->DestroyObject();
 						shape[i]->DestroyObject();
+						if (targetNumber == 26) {
+							unumMissileOn = true;
+						}
+						if (targetNumber == 27) {
+							secundusMissileOn = true;
+						}
 					}
 				}
 
 			}
 			else {
-				shape[i]->mForward(20);  //intial move before becoming smart
+				shape[i]->mForward(40);  //intial move before becoming smart
 			}
 		}
 	}
@@ -552,7 +678,10 @@ void update() {
 		shape[5]->gravity();
 	}
 
+	if (targetsDown == 2) {
+		sprintf(winlose, "%s", "  Cadet passes flight training!");
 
+	}
 
 	updateCount++;
 	counter++;
