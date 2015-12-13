@@ -129,7 +129,7 @@ float modelSize[nShapes] = {
 
 float modelBR[nShapes];  // modelFile's bounding radius
 
-						 // Position shapes in the world
+// Position shapes in the world
 glm::vec3 translate[nShapes] = {
 	glm::vec3(0, 0, 0),
 	glm::vec3(4000, 0, 0),
@@ -265,7 +265,7 @@ void init() {
 
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 	lastTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
-											// create shape
+	// create shape
 	for (int i = 0; i < nShapes; i++) {
 
 		shape[i] = new Shape3D(translate[i], radians[i], orbital[i]);
@@ -287,14 +287,14 @@ void init() {
 	HeadLightOn = glGetUniformLocation(shaderProgram, "HeadLightOn");
 	HeadLightIntensity = glGetUniformLocation(shaderProgram, "HeadLightIntensity");
 
-	glm::vec3 lightPos1 = glm::vec3(0.1f, 0.1, 0.1f);
+	glm::vec3 lightPos1 = glm::vec3(getPosition(shape[0]->getOrientationMatrix()));
 
-	glUniform3f(PointLightPositionLoc, lightPos1.x, lightPos1.y, lightPos1.z);
+	glUniform3f(PointLightPositionLoc, lightPos1.x, -lightPos1.y+1, lightPos1.z);
 	glUniform1f(PointLightOnLoc, true);
-	glUniform3f(PointLightIntensityLoc, 0.3f, 0.2f, 0.1f);
+	glUniform3f(PointLightIntensityLoc, 0.7f, 0.7f, 0.7f);
 
 	glUniform1f(HeadLightOn, true);
-	glUniform3f(HeadLightIntensity, 0.1f, 0.3f, 0.4f);
+	glUniform3f(HeadLightIntensity, 0.4f, 0.4f, 0.4f);
 
 }
 
@@ -623,7 +623,7 @@ void keyboard(unsigned char key, int x, int y) {
 
 		break;
 
-	case 'f': case 'F': 
+	case 'f': case 'F':
 
 		if (shape[nextMissile - 1]->getActive() == false && nextMissile != 17) {
 
@@ -663,13 +663,11 @@ void keyboard(unsigned char key, int x, int y) {
 			printf("Switch Reset\n");
 		}
 
-
-
 		break;
 
 	}
 	viewMatrix = glm::lookAt(eye, at, up);
-	glUniform3f(HeadLightPosition, viewMatrix[0].x, viewMatrix[0].y, viewMatrix[0].z);
+	glUniform3f(HeadLightPosition, viewMatrix[3].x, viewMatrix[3].y, viewMatrix[3].z);
 	updateTitle();
 }
 
