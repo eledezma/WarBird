@@ -28,6 +28,7 @@ It simply switched from default view, to the first view on the toggle loop, whic
 
 # define __Windows__ // define your target operating system
 # include "../includes465/include465.hpp"  
+# include "../includes465/texture.hpp"  // freeTexture(...), loadRawTexture(...)
 
 # include "Shape3D.hpp"
 
@@ -36,6 +37,20 @@ It simply switched from default view, to the first view on the toggle loop, whic
 GLuint skyboxTexture;
 GLuint showTexture;
 bool nowSkybox = true;
+
+char * fileName = "space.raw";
+
+
+// Texture Coordinates for each vertex
+// points * 2 (s, t)
+static const GLfloat texCoords[] = {
+	0.0f, 0.0f,     // 0
+	1.0f, 0.0f,     // 1
+	1.0f, 1.0f,     // 2
+	0.0f, 1.0f,     // 3
+	0.5f, 0.5f };   // 4 apex
+
+GLuint texture, Texture, light;  // texture id, shader, light handles
 
 // Amount of Shapes
 const int nShapes = 29;
@@ -107,7 +122,7 @@ const int nVertices[nShapes] = {
 	112 * 3,
 	1696 * 3, //missile site unum
 	1696 * 3, //missile site secundus
-	49152 * 3 // box
+	3072 * 3 // box
 };
 
 float modelSize[nShapes] = {
@@ -246,22 +261,9 @@ GLboolean HeadLightOn, PointLightOn;
 
 // load the shader programs, vertex data from model files, create the solids, set initial view
 void init() {
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	// load the shader programs
 	shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 	glUseProgram(shaderProgram);
-
-	// Cubemap (Skybox)
-	std::vector<const char*> faces;
-	faces.push_back("right.raw");
-	faces.push_back("left.raw");
-	faces.push_back("top.raw");
-	faces.push_back("bottom.raw");
-	faces.push_back("front.raw");
-	faces.push_back("back.raw");
-	//skyboxTexture = loadCubemap(faces);
 
 	// generate VAOs and VBOs
 	glGenVertexArrays(nShapes, VAO);
@@ -316,12 +318,21 @@ void init() {
 
 	glm::vec3 lightPos1 = glm::vec3(getPosition(shape[0]->getOrientationMatrix()));
 
-	glUniform3f(PointLightPositionLoc, lightPos1.x, -lightPos1.y+1, lightPos1.z);
+	glUniform3f(PointLightPositionLoc, lightPos1.x, lightPos1.y + 100, lightPos1.z);
 	glUniform1f(PointLightOnLoc, true);
-	glUniform3f(PointLightIntensityLoc, 0.3f, 0.3f, 0.3f);
+	glUniform3f(PointLightIntensityLoc, 0.5f, 0.5f, 0.5f);
 
 	glUniform1f(HeadLightOn, true);
-	glUniform3f(HeadLightIntensity, 0.7f, 0.7f, 0.7f);
+	glUniform3f(HeadLightIntensity, 0.5f, 0.5f, 0.5f);
+
+	// load texture
+	texture = loadRawTexture(texture, fileName, 640, 480);
+	if (texture != 0) {
+		printf("texture file, read, texture generated and bound  \n");
+		//  Texture = glGetUniformLocation(shaderProgram, "Texture"); 
+	}
+	else  // texture file loaded
+		printf("Texture in file %s NOT LOADED !!! \n");
 
 }
 
@@ -376,7 +387,6 @@ void display() {
 		if (m == 28){
 			glDepthFunc(GL_LESS);
 			glUniform1f(showTexture, 1.0f);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
 		}else{
 			glUniform1f(showTexture, 0.0f);
 			glDepthFunc(GL_LEQUAL);

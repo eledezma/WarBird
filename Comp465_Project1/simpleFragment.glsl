@@ -50,7 +50,7 @@ vec3 vLight(vec3 LightPosition, vec3 LightIntensity, bool directional) {
 
 
 void main() {
-	vec3 tempColor = vec3(color) * 0.1f;
+	vec3 tempColor = vec3(color) * 0.5f;
 	//initial value
 	if (HeadLightOn){
 		tempColor += vLight(HeadLightPosition,HeadLightIntensity, true);
@@ -63,7 +63,8 @@ void main() {
 	if (IsTexture){   // use texture on surface
 		
 		float x = rand(fPosition.xy);
-        fragColor = vec4(x/6.0, x/4.0, x/3.0, 1.0);
+
+        fragColor = vec4(x/7.0, x/6.0, x/5.0, 1.0);
 	}
 	else{
 		fragColor = vec4(tempColor, 1.0);
