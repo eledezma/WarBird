@@ -634,8 +634,6 @@ void keyboard(unsigned char key, int x, int y) {
 
 		break;
 
-
-
 	case 'v': case 'V':
 
 		cameraSwitch++;
@@ -664,7 +662,7 @@ void keyboard(unsigned char key, int x, int y) {
 
 	case 'f': case 'F':
 
-		if (shape[nextMissile - 1]->getActive() == false && nextMissile != 17) {
+		if (shape[nextMissile + 1]->getActive() == false && nextMissile != 17) {
 
 			WBmissiles--;
 
