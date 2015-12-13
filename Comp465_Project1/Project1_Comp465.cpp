@@ -350,7 +350,7 @@ void updateTitle() {
 }
 
 void display() {
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.1f, 0.5f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glCullFace(GL_BACK);  // show only front faces
 	glEnable(GL_DEPTH_TEST);
