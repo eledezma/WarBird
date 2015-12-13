@@ -10,6 +10,7 @@ uniform vec3 HeadLightPosition;
 uniform vec3 HeadLightIntensity;
 uniform vec3 PointLightPosition;
 uniform vec3 PointLightIntensity;
+uniform bool IsTexture; 
 
 uniform bool HeadLightOn; // toggles set in application
 uniform bool PointLightOn;
@@ -53,8 +54,14 @@ void main() {
 	{
 		tempColor += vLight(PointLightPosition, PointLightIntensity, false);
 	}
+
+	if (IsTexture){   // use texture on surface
+        fragColor = vec4(0.25, 0.25, 0.4, 0.5);
+	}
+	else{
+		fragColor = vec4(tempColor, 1.0);
+	}
 	
-	fragColor = vec4(tempColor, 1.0);
 }
 
 

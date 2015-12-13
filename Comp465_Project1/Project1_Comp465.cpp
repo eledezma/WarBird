@@ -21,13 +21,24 @@ So it might seem like hitting “v” did nothing the first time, but it did.
 It simply switched from default view, to the first view on the toggle loop, which is “Front View”.
 */
 
+#include <string>
+#include <algorithm>
+#include <vector>
+
+
 # define __Windows__ // define your target operating system
 # include "../includes465/include465.hpp"  
 
 # include "Shape3D.hpp"
 
+
+// Skybox
+GLuint skyboxTexture;
+GLuint showTexture;
+bool nowSkybox = true;
+
 // Amount of Shapes
-const int nShapes = 28;
+const int nShapes = 29;
 const int WarbirdMissileRange = 5000;
 int WBmissiles = 10;
 Shape3D * shape[nShapes];
@@ -63,7 +74,8 @@ char * modelFile[nShapes] = {
 	"missile.tri",
 	"missile.tri",
 	"missileSite.tri",
-	"missileSite.tri"
+	"missileSite.tri", 
+	"box.tri"
 };
 
 const int nVertices[nShapes] = {
@@ -94,7 +106,8 @@ const int nVertices[nShapes] = {
 	112 * 3,
 	112 * 3,
 	1696 * 3, //missile site unum
-	1696 * 3 //missile site secundus
+	1696 * 3, //missile site secundus
+	12 * 3 // box
 };
 
 float modelSize[nShapes] = {
@@ -125,7 +138,8 @@ float modelSize[nShapes] = {
 	25.0f,
 	25.0f,
 	30.0f,
-	30.0f };
+	30.0f, 
+    50000.0f};
 
 float modelBR[nShapes];  // modelFile's bounding radius
 
@@ -158,14 +172,15 @@ glm::vec3 translate[nShapes] = {
 	glm::vec3(0, 0, 0),
 	glm::vec3(0, 0, 0),
 	glm::vec3(4000, 240, 0),  //missile base unum
-	glm::vec3(1750, 190, 0) }; //missile site in moon
+	glm::vec3(1750, 190, 0), 
+	glm::vec3(0, 0, 0)}; //missile site in moon
 
 // Rotation angels
 float radians[nShapes] = { 0.0f, 0.004f, 0.002f, 0.004f, 0.002f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.004f, 0.002f };
+0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.004f, 0.002f, 0.0f };
 
 bool orbital[nShapes] = { false, true, true, true, true, false, false, false, false, false, false, false, false, false, false, false,
-false, false, false, false, false, false, false, false, false, false, true, true };
+false, false, false, false, false, false, false, false, false, false, true, true, false };
 
 // display state and "state strings" for title display
 // window title strings
@@ -231,14 +246,22 @@ GLboolean HeadLightOn, PointLightOn;
 
 // load the shader programs, vertex data from model files, create the solids, set initial view
 void init() {
-	// set render state values
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_POLYGON_SMOOTH);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// load the shader programs
 	shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 	glUseProgram(shaderProgram);
+
+	// Cubemap (Skybox)
+	std::vector<const char*> faces;
+	faces.push_back("right.raw");
+	faces.push_back("left.raw");
+	faces.push_back("top.raw");
+	faces.push_back("bottom.raw");
+	faces.push_back("front.raw");
+	faces.push_back("back.raw");
+	//skyboxTexture = loadCubemap(faces);
 
 	// generate VAOs and VBOs
 	glGenVertexArrays(nShapes, VAO);
@@ -246,7 +269,9 @@ void init() {
 
 	// load the buffers from the model files
 	for (int i = 0; i < nShapes; i++) {
-
+		if (i == 28){
+			vNormal[i] = (-1) * vNormal[i];
+		}
 		modelBR[i] = loadModelBuffer(modelFile[i], nVertices[i], VAO[i], buffer[i], shaderProgram,
 			vPosition[i], vColor[i], vNormal[i], "vPosition", "vColor", "vNormal");
 		// set scale for models given bounding radius  
@@ -257,6 +282,8 @@ void init() {
 	modelLoc = glGetUniformLocation(shaderProgram, "modelPos");
 	viewLoc = glGetUniformLocation(shaderProgram, "viewPos");
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
+	showTexture = glGetUniformLocation(shaderProgram, "IsTexture");
+
 	// initially use a front view
 	eye = glm::vec3(0.0f, 10000.0f, 20000.0f);
 	at = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -291,10 +318,10 @@ void init() {
 
 	glUniform3f(PointLightPositionLoc, lightPos1.x, -lightPos1.y+1, lightPos1.z);
 	glUniform1f(PointLightOnLoc, true);
-	glUniform3f(PointLightIntensityLoc, 0.7f, 0.7f, 0.7f);
+	glUniform3f(PointLightIntensityLoc, 0.3f, 0.3f, 0.3f);
 
 	glUniform1f(HeadLightOn, true);
-	glUniform3f(HeadLightIntensity, 0.4f, 0.4f, 0.4f);
+	glUniform3f(HeadLightIntensity, 0.7f, 0.7f, 0.7f);
 
 }
 
@@ -323,7 +350,10 @@ void updateTitle() {
 }
 
 void display() {
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glCullFace(GL_BACK);  // show only front faces
+	glEnable(GL_DEPTH_TEST);
 
 	//Update model matrices
 	for (int m = 0; m < nShapes; m++) {
@@ -340,9 +370,18 @@ void display() {
 		}
 
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(shape[m]->getModelMatrix()));
-
 		ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
 		glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
+		
+		if (m == 28){
+			glDepthFunc(GL_LESS);
+			glUniform1f(showTexture, 1.0f);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+		}else{
+			glUniform1f(showTexture, 0.0f);
+			glDepthFunc(GL_LEQUAL);
+		}
+
 		glBindVertexArray(VAO[m]);
 		glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
 
