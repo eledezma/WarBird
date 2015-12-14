@@ -267,7 +267,14 @@ int warp = 1;  //1 = unum, 2 = duo
 boolean gravity = false; //set gravity on/off, init off
 
 GLuint HeadLightPosition, HeadLightIntensity, PointLightPosition, PointLightIntensity;
-GLboolean HeadLightOn, PointLightOn;
+GLuint HeadLightOn;
+GLuint PointLightOnLoc;
+
+GLboolean hl = false;
+GLboolean pl = false;
+GLboolean dl = false;
+GLboolean al = false;
+
 
 
 // load the shader programs, vertex data from model files, create the solids, set initial view
@@ -320,7 +327,7 @@ void init() {
 	// Set the initial light settings
 	GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
 	GLint PointLightPositionLoc = glGetUniformLocation(shaderProgram, "PointLightPosition");
-	GLint PointLightOnLoc = glGetUniformLocation(shaderProgram, "PointLightOn");
+	PointLightOnLoc = glGetUniformLocation(shaderProgram, "PointLightOn");
 	GLint PointLightIntensityLoc = glGetUniformLocation(shaderProgram, "PointLightIntensity");
 
 	HeadLightPosition = glGetUniformLocation(shaderProgram, "HeadLightPosition");
@@ -329,11 +336,8 @@ void init() {
 
 	glm::vec3 lightPos1 = glm::vec3(getPosition(shape[0]->getOrientationMatrix()));
 
-	glUniform3f(PointLightPositionLoc, lightPos1.x, lightPos1.y + 100, lightPos1.z);
-	glUniform1f(PointLightOnLoc, true);
+	glUniform3f(PointLightPositionLoc, 0, 1000, 0);
 	glUniform3f(PointLightIntensityLoc, 0.5f, 0.5f, 0.5f);
-
-	glUniform1f(HeadLightOn, true);
 	glUniform3f(HeadLightIntensity, 0.5f, 0.5f, 0.5f);
 
 	// load texture
@@ -695,7 +699,7 @@ void update() {
 		updateCount = 0;
 		updateTitle();
 	}
-
+	glUniform3f(HeadLightPosition, viewMatrix[3].x, viewMatrix[3].y, viewMatrix[3].z);
 	glutPostRedisplay();
 }
 
@@ -708,6 +712,33 @@ void intervalTimer(int i) {
 void keyboard(unsigned char key, int x, int y) {
 
 	switch (key) {
+
+	case 'h': case 'H':
+	
+		if (hl == false){
+			hl = true;
+			glUniform1f(HeadLightOn, true);
+		}
+		else if(hl == true) {
+			hl = false;
+			glUniform1f(HeadLightOn, false);
+		}
+
+		break;
+
+	case 'p': case 'P':
+
+		if (pl == false){
+			pl = true;
+			glUniform1f(PointLightOnLoc, true);
+		}
+		else if (pl == true) {
+			pl = false;
+			glUniform1f(PointLightOnLoc, false);
+		}
+
+		break;
+	
 
 	case 033: case 'q':  case 'Q': exit(EXIT_SUCCESS); break;
 
@@ -840,6 +871,7 @@ void keyboard(unsigned char key, int x, int y) {
 		}
 
 		break;
+
 
 	}
 	viewMatrix = glm::lookAt(eye, at, up);
