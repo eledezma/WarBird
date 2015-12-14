@@ -28,29 +28,11 @@ It simply switched from default view, to the first view on the toggle loop, whic
 
 # define __Windows__ // define your target operating system
 # include "../includes465/include465.hpp"  
-# include "../includes465/texture.hpp"  // freeTexture(...), loadRawTexture(...)
 
 # include "Shape3D.hpp"
 
-
-// Skybox
-GLuint skyboxTexture;
 GLuint showTexture;
 bool nowSkybox = true;
-
-char * fileName = "space.raw";
-
-
-// Texture Coordinates for each vertex
-// points * 2 (s, t)
-static const GLfloat texCoords[] = {
-	0.0f, 0.0f,     // 0
-	1.0f, 0.0f,     // 1
-	1.0f, 1.0f,     // 2
-	0.0f, 1.0f,     // 3
-	0.5f, 0.5f };   // 4 apex
-
-GLuint texture, Texture, light;  // texture id, shader, light handles
 
 // Amount of Shapes
 const int nShapes = 29;
@@ -98,7 +80,7 @@ char * modelFile[nShapes] = {
 	"missile.tri",
 	"missile.tri",
 	"missileSite.tri",
-	"missileSite.tri", 
+	"missileSite.tri",
 	"box.tri"
 };
 
@@ -162,8 +144,8 @@ float modelSize[nShapes] = {
 	25.0f,
 	25.0f,
 	30.0f,
-	30.0f, 
-    50000.0f};
+	30.0f,
+	50000.0f };
 
 float modelBR[nShapes];  // modelFile's bounding radius
 
@@ -196,8 +178,8 @@ glm::vec3 translate[nShapes] = {
 	glm::vec3(0, 0, 0),
 	glm::vec3(0, 0, 0),
 	glm::vec3(4000, 240, 0),  //missile base unum
-	glm::vec3(1750, 190, 0), 
-	glm::vec3(0, 0, 0)}; //missile site in moon
+	glm::vec3(1750, 190, 0),
+	glm::vec3(0, 0, 0) }; //missile site in moon
 
 // Rotation angels
 float radians[nShapes] = { 0.0f, 0.004f, 0.002f, 0.004f, 0.002f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -344,15 +326,6 @@ void init() {
 	glUniform3f(HeadLightIntensity, 0.5f, 0.5f, 0.5f);
 	glUniform1f(AmbientLightOnLoc, true);
 
-	// load texture
-	texture = loadRawTexture(texture, fileName, 640, 480);
-	if (texture != 0) {
-		printf("texture file, read, texture generated and bound  \n");
-		//  Texture = glGetUniformLocation(shaderProgram, "Texture"); 
-	}
-	else  // texture file loaded
-		printf("Texture in file %s NOT LOADED !!! \n");
-
 }
 
 void reshape(int width, int height) {
@@ -403,11 +376,12 @@ void display() {
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(shape[m]->getModelMatrix()));
 		ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
 		glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
-		
+
 		if (m == 28){
 			glDepthFunc(GL_LESS);
 			glUniform1f(showTexture, 1.0f);
-		}else{
+		}
+		else{
 			glUniform1f(showTexture, 0.0f);
 			glDepthFunc(GL_LEQUAL);
 		}
@@ -489,7 +463,7 @@ GLboolean collision(Shape3D * a, Shape3D * b, int target) {
 
 			printf("\n Distance: %f", d);
 			printf("\n radius: %f", b->getBoundingRadius());
-		}*/
+			}*/
 	}
 
 	if (target > 0 && target < 5) {
@@ -612,7 +586,7 @@ void update() {
 			if (shape[i]->getSmartMissile()) {
 
 				if (shape[i]->getTarget() == false) {  //if no target look for it
-													   //printf("\n %f", d1);
+					//printf("\n %f", d1);
 					if (shape[26]->getDestroyed() == false) {
 						site1Pos = getPosition(shape[26]->getOrientationMatrix());
 						missilePos = getPosition(shape[i]->getOrientationMatrix());
@@ -731,12 +705,12 @@ void keyboard(unsigned char key, int x, int y) {
 		break;
 
 	case 'h': case 'H':
-	
+
 		if (hl == false){
 			hl = true;
 			glUniform1f(HeadLightOn, true);
 		}
-		else if(hl == true) {
+		else if (hl == true) {
 			hl = false;
 			glUniform1f(HeadLightOn, false);
 		}
@@ -755,7 +729,7 @@ void keyboard(unsigned char key, int x, int y) {
 		}
 
 		break;
-	
+
 
 	case 033: case 'q':  case 'Q': exit(EXIT_SUCCESS); break;
 
@@ -841,10 +815,7 @@ void keyboard(unsigned char key, int x, int y) {
 			at = glm::vec3(0.0f, 0.0f, 0.0f);
 			up = glm::vec3(1.0f, 0.0f, 0.0f);
 			strcpy(viewStr, "Top");
-
 		}
-
-
 		break;
 
 	case 'f': case 'F':
@@ -852,7 +823,6 @@ void keyboard(unsigned char key, int x, int y) {
 		if (shape[nextMissile + 1]->getActive() == false && nextMissile != 17) {
 
 			WBmissiles--;
-
 			shape[nextMissile]->setTranslation(shape[5]->getTranslation());
 			shape[nextMissile]->setRotation(shape[5]->getRotation());
 			shape[nextMissile]->Active(true);
@@ -870,9 +840,8 @@ void keyboard(unsigned char key, int x, int y) {
 			eye = glm::vec3(0.0f, 10000.0f, 20000.0f);
 			at = glm::vec3(0.0f, 0.0f, 0.0f);
 			up = glm::vec3(0.0f, 1.0f, 0.0f);
-
-
 		}
+
 		if (cameraSwitch == 1) {
 			eye = glm::vec3(0.0f, 20000.0f, 0.0f);
 			at = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -880,7 +849,6 @@ void keyboard(unsigned char key, int x, int y) {
 			strcpy(viewStr, "Top");
 
 		}
-
 
 		if (cameraSwitch == -1) {
 			cameraSwitch = 4;
