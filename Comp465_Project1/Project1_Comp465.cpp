@@ -269,6 +269,8 @@ boolean gravity = false; //set gravity on/off, init off
 GLuint HeadLightPosition, HeadLightIntensity, PointLightPosition, PointLightIntensity;
 GLuint HeadLightOn;
 GLuint PointLightOnLoc;
+GLuint AmbientLightOnLoc;
+
 
 GLboolean hl = false;
 GLboolean pl = false;
@@ -328,6 +330,7 @@ void init() {
 	GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
 	GLint PointLightPositionLoc = glGetUniformLocation(shaderProgram, "PointLightPosition");
 	PointLightOnLoc = glGetUniformLocation(shaderProgram, "PointLightOn");
+	AmbientLightOnLoc = glGetUniformLocation(shaderProgram, "AmbientLightOn");
 	GLint PointLightIntensityLoc = glGetUniformLocation(shaderProgram, "PointLightIntensity");
 
 	HeadLightPosition = glGetUniformLocation(shaderProgram, "HeadLightPosition");
@@ -339,6 +342,7 @@ void init() {
 	glUniform3f(PointLightPositionLoc, 0, 1000, 0);
 	glUniform3f(PointLightIntensityLoc, 0.5f, 0.5f, 0.5f);
 	glUniform3f(HeadLightIntensity, 0.5f, 0.5f, 0.5f);
+	glUniform1f(AmbientLightOnLoc, true);
 
 	// load texture
 	texture = loadRawTexture(texture, fileName, 640, 480);
@@ -712,6 +716,19 @@ void intervalTimer(int i) {
 void keyboard(unsigned char key, int x, int y) {
 
 	switch (key) {
+
+	case 'a': case 'A':
+
+		if (al == false){
+			al = true;
+			glUniform1f(AmbientLightOnLoc, true);
+		}
+		else if (al == true) {
+			al = false;
+			glUniform1f(AmbientLightOnLoc, false);
+		}
+
+		break;
 
 	case 'h': case 'H':
 	

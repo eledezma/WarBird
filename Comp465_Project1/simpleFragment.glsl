@@ -11,6 +11,7 @@ uniform vec3 HeadLightIntensity;
 uniform vec3 PointLightPosition;
 uniform vec3 PointLightIntensity;
 uniform bool IsTexture; 
+uniform bool AmbientLightOn;
 
 uniform bool HeadLightOn; // toggles set in application
 uniform bool PointLightOn;
@@ -24,7 +25,11 @@ float rand(vec2 co){
 
 
 vec3 vLight(vec3 LightPosition, vec3 LightIntensity, bool directional) {
-    float ambient = 0.2f;
+	float ambient = 0.2f;
+	if(AmbientLightOn == false){
+		ambient = 0.0f;
+	}
+    
     // scale directional ambient
 	float diffuse = 0.0f;
     // compute diffuse in all cases
